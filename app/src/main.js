@@ -89,6 +89,7 @@
     completedProfileIds: new Set(),
     onchainAnsweredProfileIds: new Set(),
     pendingAnswers: new Map(),
+    appKitProviderUnsubscribe: null,
     metaMaskSdk: null,
     provider: null,
     signer: null,
@@ -188,9 +189,104 @@
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.matchMedia("(pointer: coarse)").matches;
   }
 
+  function normalizeChainId(chainId) {
+    if (typeof chainId === "number") {
+      return `0x${chainId.toString(16)}`;
+    }
+
+    if (typeof chainId === "bigint") {
+      return `0x${chainId.toString(16)}`;
+    }
+
+    if (typeof chainId === "string" && chainId) {
+      return chainId.startsWith("0x") ? chainId.toLowerCase() : `0x${Number(chainId).toString(16)}`;
+    }
+
+    return "";
+  }
+
+  function appKitModal() {
+    return window.RIRAppKit?.modal || null;
+  }
+
+  function appKitProvider() {
+    const modal = appKitModal();
+    if (!modal) {
+      return null;
+    }
+
+    const provider = modal.getWalletProvider?.() || modal.getProvider?.("eip155");
+    return provider?.request ? provider : null;
+  }
+
+  function appKitAddress() {
+    const modal = appKitModal();
+    return modal?.getAddress?.("eip155") || modal?.getAddress?.() || "";
+  }
+
+  function syncAppKitState() {
+    const modal = appKitModal();
+    if (!modal) {
+      return { address: "", provider: null };
+    }
+
+    const provider = appKitProvider();
+    const address = appKitAddress();
+    const chainId = normalizeChainId(modal.getChainId?.());
+
+    if (provider) {
+      state.walletProvider = provider;
+    }
+
+    if (address) {
+      state.account = address;
+    }
+
+    if (chainId) {
+      state.chainId = chainId;
+    }
+
+    return { address, provider };
+  }
+
+  function attachAppKitEvents() {
+    const modal = appKitModal();
+    if (!modal || state.appKitProviderUnsubscribe) {
+      return;
+    }
+
+    state.appKitProviderUnsubscribe = modal.subscribeProvider((providerState) => {
+      const provider = providerState?.provider || appKitProvider();
+      const address = providerState?.address || appKitAddress();
+      const chainId = normalizeChainId(providerState?.chainId || modal.getChainId?.());
+
+      if (provider?.request) {
+        state.walletProvider = provider;
+      }
+
+      state.account = address || "";
+      state.chainId = chainId || state.chainId;
+
+      if (!address) {
+        state.provider = null;
+        state.signer = null;
+      }
+
+      updateWalletControls();
+      updateGateVisibility();
+      updateVoteButtons();
+    });
+  }
+
   function walletProvider() {
     if (state.walletProvider?.request) {
       return state.walletProvider;
+    }
+
+    const walletPickerProvider = appKitProvider();
+    if (walletPickerProvider?.request) {
+      state.walletProvider = walletPickerProvider;
+      return walletPickerProvider;
     }
 
     if (window.ethereum?.request) {
@@ -223,6 +319,11 @@
   }
 
   async function getConnectProvider() {
+    attachAppKitEvents();
+    if (appKitModal()) {
+      return connectWithAppKit();
+    }
+
     const injectedProvider = walletProvider();
     if (injectedProvider) {
       attachWalletEvents(injectedProvider);
@@ -253,6 +354,59 @@
     return state.walletProvider;
   }
 
+  async function connectWithAppKit() {
+    const modal = appKitModal();
+    if (!modal) {
+      throw new Error("Wallet picker did not load. Refresh and try again.");
+    }
+
+    const current = syncAppKitState();
+    if (current.provider?.request && current.address) {
+      return current.provider;
+    }
+
+    setWalletHint("Choose your wallet from the picker. On mobile, approve in the wallet app and return here.");
+
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      let unsubscribe = null;
+      let pollTimer = null;
+
+      const cleanup = () => {
+        settled = true;
+        window.clearTimeout(timeoutTimer);
+        window.clearInterval(pollTimer);
+        unsubscribe?.();
+      };
+
+      const maybeResolve = () => {
+        const next = syncAppKitState();
+        if (next.provider?.request && next.address) {
+          cleanup();
+          resolve(next.provider);
+        }
+      };
+
+      const timeoutTimer = window.setTimeout(() => {
+        if (settled) {
+          return;
+        }
+        cleanup();
+        reject(new Error("Wallet connection timed out. Open the picker and try another wallet."));
+      }, 120000);
+
+      unsubscribe = modal.subscribeProvider(() => maybeResolve());
+      pollTimer = window.setInterval(maybeResolve, 500);
+      modal.open().catch((error) => {
+        if (!settled) {
+          cleanup();
+          reject(error);
+        }
+      });
+      maybeResolve();
+    });
+  }
+
   function setUsernameLoading(isLoading) {
     elements.usernameSubmit.disabled = isLoading;
     elements.viewerUsernameInput.disabled = isLoading;
@@ -275,17 +429,23 @@
   }
 
   function isRitualChain() {
-    return state.chainId?.toLowerCase() === ritualChain.chainId;
+    return normalizeChainId(state.chainId) === ritualChain.chainId;
   }
 
   async function readChainId() {
+    const appKitChainId = normalizeChainId(appKitModal()?.getChainId?.());
+    if (appKitChainId) {
+      state.chainId = appKitChainId;
+      return state.chainId;
+    }
+
     const provider = walletProvider();
     if (!provider?.request) {
       state.chainId = "";
       return "";
     }
 
-    state.chainId = await provider.request({ method: "eth_chainId" });
+    state.chainId = normalizeChainId(await provider.request({ method: "eth_chainId" }));
     return state.chainId;
   }
 
@@ -293,6 +453,16 @@
     const provider = walletProvider();
     if (!provider?.request) {
       throw new Error("No wallet found. Install MetaMask or another EVM wallet.");
+    }
+
+    const modal = appKitModal();
+    if (modal && window.RIRAppKit?.ritualNetwork) {
+      await modal.switchNetwork(window.RIRAppKit.ritualNetwork, { throwOnFailure: true });
+      await readChainId();
+      if (!isRitualChain()) {
+        throw new Error("Switch to Ritual Chain to continue.");
+      }
+      return;
     }
 
     try {
@@ -319,18 +489,18 @@
 
   function updateWalletControls() {
     if (!state.account) {
-      const needsWalletBrowser = isMobileDevice() && !hasWalletProvider();
-      const label = needsWalletBrowser ? "Connect MetaMask" : "Connect Wallet";
+      const needsWalletBrowser = isMobileDevice() && !hasWalletProvider() && !appKitModal();
+      const label = needsWalletBrowser ? "Open Wallet" : "Connect Wallet";
 
       elements.connectWallet.textContent = label;
       elements.connectWallet.title = needsWalletBrowser
-        ? "Connect through MetaMask mobile and return here."
-        : "Connect wallet.";
+        ? "Open a wallet browser or try again after the wallet picker loads."
+        : "Choose an EVM wallet.";
       elements.setupConnectWallet.textContent = label;
       setWalletHint(
         needsWalletBrowser
-          ? "Mobile detected. MetaMask will open for approval, then return here."
-          : "Connect an EVM wallet to submit on-chain answers."
+          ? "Mobile detected. Open a wallet browser, or refresh and try the wallet picker again."
+          : "Choose any EVM wallet from the picker to submit on-chain answers."
       );
       return;
     }
@@ -1174,11 +1344,13 @@
       const ethereumProvider = await getConnectProvider();
       setWalletHint(
         isMobileDevice()
-          ? "MetaMask may open for approval. Confirm there, then return here."
+          ? "Your wallet may open for approval. Confirm there, then return here."
           : "Confirm the wallet connection request."
       );
-      await requestWalletSelection(ethereumProvider);
-      await ethereumProvider.request({ method: "eth_requestAccounts", params: [] });
+      if (!appKitModal()) {
+        await requestWalletSelection(ethereumProvider);
+        await ethereumProvider.request({ method: "eth_requestAccounts", params: [] });
+      }
       await readChainId();
       if (!isRitualChain()) {
         setStatus("Switching wallet to Ritual Chain...");
@@ -1204,6 +1376,8 @@
   }
 
   async function restoreConnectedWallet() {
+    attachAppKitEvents();
+    syncAppKitState();
     const ethereumProvider = walletProvider();
     if (!ethereumProvider || !window.ethers) {
       return;
@@ -1211,7 +1385,8 @@
 
     try {
       attachWalletEvents(ethereumProvider);
-      const accounts = await ethereumProvider.request({ method: "eth_accounts" });
+      const appKitAccount = appKitAddress();
+      const accounts = appKitAccount ? [appKitAccount] : await ethereumProvider.request({ method: "eth_accounts" });
       if (!accounts.length) {
         return;
       }
@@ -1253,8 +1428,17 @@
   }
 
   async function disconnectWallet() {
+    const modal = appKitModal();
+    if (modal?.getIsConnectedState?.() || appKitAddress()) {
+      try {
+        await modal.disconnect("eip155");
+      } catch {
+        // AppKit disconnect is best effort; local state still disconnects.
+      }
+    }
+
     const provider = walletProvider();
-    if (provider?.request) {
+    if (provider?.request && !appKitModal()) {
       try {
         await provider.request({
           method: "wallet_revokePermissions",

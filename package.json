@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:sdk": "esbuild ./scripts/metamask-sdk-entry.js --bundle --format=iife --global-name=RIRMetaMaskSDKBundle --platform=browser --outfile=app/vendor/metamask-sdk.bundle.js --log-level=warning",
+    "build:appkit": "node scripts/build-appkit-bundle.mjs",
+    "build:sdk": "node scripts/build-metamask-sdk-bundle.mjs",
     "dev": "python -m http.server 5173 --bind 127.0.0.1 --directory app",
     "build:seed": "node scripts/build-contract-seed.mjs",
     "cache:profiles": "node scripts/cache-profiles.mjs",
@@ -16,5 +17,10 @@
   "devDependencies": {
     "@metamask/sdk": "^0.33.0",
     "esbuild": "^0.25.5"
+  },
+  "dependencies": {
+    "@reown/appkit": "^1.8.19",
+    "@reown/appkit-adapter-ethers": "^1.8.19",
+    "ethers": "^6.16.0"
   }
 }
