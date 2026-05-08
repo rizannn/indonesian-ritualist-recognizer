@@ -702,12 +702,19 @@ input:focus {
   margin: 0 auto 20px;
 }
 
+.completion-submit,
 .completion-share {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 164px;
-  margin: 2px auto 18px;
+  margin: 2px auto 12px;
+}
+
+.completion-submit[disabled] {
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  opacity: 0.68;
 }
 
 .completion-stats div {

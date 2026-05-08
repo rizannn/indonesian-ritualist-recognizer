@@ -6,12 +6,12 @@
     <meta http-equiv="Cache-Control" content="no-store" />
     <meta http-equiv="Pragma" content="no-cache" />
     <title>Indonesian Ritualist Recognizer</title>
-    <link rel="stylesheet" href="./src/styles.css?v=20260508-7" />
+    <link rel="stylesheet" href="./src/styles.css?v=20260508-8" />
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js" defer></script>
-    <script src="./vendor/metamask-sdk.bundle.js?v=20260508-7" defer></script>
-    <script src="./src/profiles.js?v=20260508-7" defer></script>
-    <script src="./src/profile-cache.js?v=20260508-7" defer></script>
-    <script src="./src/main.js?v=20260508-7" defer></script>
+    <script src="./vendor/metamask-sdk.bundle.js?v=20260508-8" defer></script>
+    <script src="./src/profiles.js?v=20260508-8" defer></script>
+    <script src="./src/profile-cache.js?v=20260508-8" defer></script>
+    <script src="./src/main.js?v=20260508-8" defer></script>
   </head>
   <body>
     <section class="gate-screen" id="usernameGate" aria-label="Enter X username">
@@ -136,10 +136,13 @@
                 <span>Members checked</span>
               </div>
               <div>
-                <strong>On-chain</strong>
-                <span>Ritual verified</span>
+                <strong id="completionChainStatus">Ready</strong>
+                <span>Batch submit</span>
               </div>
             </div>
+            <button class="primary-button completion-submit" id="submitBatchAnswers" type="button">
+              Submit all answers
+            </button>
             <a class="primary-button completion-share" id="shareResult" href="https://x.com/intent/tweet" target="_blank" rel="noreferrer">
               Share result
             </a>

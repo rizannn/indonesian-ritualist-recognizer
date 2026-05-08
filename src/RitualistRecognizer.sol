@@ -118,17 +118,30 @@ contract RitualistRecognizer {
     }
 
     function answer(uint256 profileId, bool knows) external profileExists(profileId) {
-        require(answers[profileId][msg.sender] == RecognitionAnswer.Unanswered, "Already answered");
+        _answer(profileId, knows, msg.sender);
+    }
+
+    function answerBatch(uint256[] calldata profileIds, bool[] calldata knows) external {
+        require(profileIds.length > 0, "No answers");
+        require(profileIds.length == knows.length, "Length mismatch");
+
+        for (uint256 i = 0; i < profileIds.length; i += 1) {
+            _answer(profileIds[i], knows[i], msg.sender);
+        }
+    }
+
+    function _answer(uint256 profileId, bool knows, address voter) internal profileExists(profileId) {
+        require(answers[profileId][voter] == RecognitionAnswer.Unanswered, "Already answered");
 
         if (knows) {
             profiles[profileId].knowCount += 1;
-            answers[profileId][msg.sender] = RecognitionAnswer.Know;
+            answers[profileId][voter] = RecognitionAnswer.Know;
         } else {
             profiles[profileId].doNotKnowCount += 1;
-            answers[profileId][msg.sender] = RecognitionAnswer.DoNotKnow;
+            answers[profileId][voter] = RecognitionAnswer.DoNotKnow;
         }
 
-        emit AnswerSubmitted(profileId, msg.sender, knows);
+        emit AnswerSubmitted(profileId, voter, knows);
     }
 
     function getProfile(uint256 profileId)

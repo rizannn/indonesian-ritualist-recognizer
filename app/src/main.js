@@ -1,6 +1,7 @@
 (function () {
   const contractAbi = [
     "function answer(uint256 profileId, bool knows)",
+    "function answerBatch(uint256[] profileIds, bool[] knows)",
     "function getProfile(uint256 profileId) view returns (string xUsername, string displayName, string avatarURI, string metadataURI, bytes32 metadataHash, uint256 knowCount, uint256 doNotKnowCount)",
     "function getAnswer(uint256 profileId, address voter) view returns (uint8)"
   ];
@@ -33,6 +34,7 @@
     candidateInitial: document.getElementById("candidateInitial"),
     completionAvatar: document.getElementById("completionAvatar"),
     completionCard: document.getElementById("completionCard"),
+    completionChainStatus: document.getElementById("completionChainStatus"),
     completionInitial: document.getElementById("completionInitial"),
     completionName: document.getElementById("completionName"),
     completionTotal: document.getElementById("completionTotal"),
@@ -59,6 +61,7 @@
     setupConnectWallet: document.getElementById("setupConnectWallet"),
     shareResult: document.getElementById("shareResult"),
     statusLine: document.getElementById("statusLine"),
+    submitBatchAnswers: document.getElementById("submitBatchAnswers"),
     totalCount: document.getElementById("totalCount"),
     userPill: document.getElementById("userPill"),
     usernameForm: document.getElementById("usernameForm"),
@@ -81,8 +84,11 @@
     account: "",
     activeIndex: 0,
     chainId: "",
+    batchSubmitted: false,
+    batchSubmitting: false,
     completedProfileIds: new Set(),
     onchainAnsweredProfileIds: new Set(),
+    pendingAnswers: new Map(),
     metaMaskSdk: null,
     provider: null,
     signer: null,
@@ -102,17 +108,46 @@
     return `rir.completed.${owner.toLowerCase()}`;
   }
 
+  function pendingAnswersStorageKey() {
+    const owner = state.account || state.viewerUsername || "local";
+    return `rir.pendingAnswers.${owner.toLowerCase()}`;
+  }
+
+  function batchSubmittedStorageKey() {
+    const owner = state.account || state.viewerUsername || "local";
+    return `rir.batchSubmitted.${owner.toLowerCase()}`;
+  }
+
   function loadCompleted() {
     try {
-      const raw = localStorage.getItem(completedStorageKey());
-      state.completedProfileIds = new Set(raw ? JSON.parse(raw) : []);
+      const rawPendingAnswers = localStorage.getItem(pendingAnswersStorageKey());
+      const parsedPendingAnswers = rawPendingAnswers ? JSON.parse(rawPendingAnswers) : {};
+      state.pendingAnswers = new Map(Object.entries(parsedPendingAnswers));
+      state.completedProfileIds = new Set(state.pendingAnswers.keys());
+      state.batchSubmitted = localStorage.getItem(batchSubmittedStorageKey()) === "true";
     } catch {
+      state.pendingAnswers = new Map();
       state.completedProfileIds = new Set();
+      state.batchSubmitted = false;
     }
   }
 
   function saveCompleted() {
     localStorage.setItem(completedStorageKey(), JSON.stringify([...state.completedProfileIds]));
+  }
+
+  function savePendingAnswers() {
+    localStorage.setItem(pendingAnswersStorageKey(), JSON.stringify(Object.fromEntries(state.pendingAnswers)));
+    saveCompleted();
+  }
+
+  function saveBatchSubmitted(isSubmitted) {
+    state.batchSubmitted = isSubmitted;
+    localStorage.setItem(batchSubmittedStorageKey(), isSubmitted ? "true" : "false");
+  }
+
+  function hasPendingAnswer(profile) {
+    return Boolean(profile && state.pendingAnswers.has(profile.profileId));
   }
 
   function isProfileAnswered(profile) {
@@ -513,6 +548,22 @@
     return new ethers.Contract(contractAddress, contractAbi, runner);
   }
 
+  function batchAnswerEntries() {
+    const profileIds = [];
+    const knows = [];
+
+    profiles.forEach((profile) => {
+      if (!state.pendingAnswers.has(profile.profileId) || state.onchainAnsweredProfileIds.has(profile.profileId)) {
+        return;
+      }
+
+      profileIds.push(BigInt(profile.profileId));
+      knows.push(Boolean(state.pendingAnswers.get(profile.profileId)));
+    });
+
+    return { knows, profileIds };
+  }
+
   function updateProgress() {
     const completed = state.completedProfileIds.size;
     const total = profiles.length;
@@ -537,6 +588,14 @@
     if (!isComplete) {
       return;
     }
+
+    const pendingBatchCount = batchAnswerEntries().profileIds.length;
+    elements.completionChainStatus.textContent = state.batchSubmitted ? "On-chain" : "Ready";
+    elements.submitBatchAnswers.hidden = state.batchSubmitted;
+    elements.submitBatchAnswers.disabled = state.batchSubmitting || pendingBatchCount === 0;
+    elements.submitBatchAnswers.textContent = state.batchSubmitting
+      ? "Submitting..."
+      : `Submit ${pendingBatchCount} answers`;
 
     const viewerProfile = state.viewerProfile || profileCache.get(state.viewerUsername.toLowerCase()) || {};
     elements.completionName.textContent = viewerProfile.displayName || state.viewerUsername;
@@ -575,7 +634,11 @@
     } else if (!isValidContractAddress()) {
       setStatus("Contract address is not configured yet.");
     } else if (alreadyAnswered) {
-      setStatus("You already answered this member. Skip to the next one.");
+      setStatus(
+        hasPendingAnswer(currentProfile)
+          ? "Answer saved locally. Submit all answers once you finish."
+          : "You already answered this member on-chain. Skip to the next one."
+      );
     }
   }
 
@@ -932,21 +995,18 @@
         throw new Error("Enter your X username first.");
       }
 
+      if (state.onchainAnsweredProfileIds.has(profile.profileId)) {
+        throw new Error("You already answered this member on-chain.");
+      }
+
       if (!state.signer) {
         await connectWallet();
       }
 
-      const contract = currentContract(false);
-      elements.voteKnow.disabled = true;
-      elements.voteDoNotKnow.disabled = true;
-      setStatus("Waiting for wallet confirmation...");
-
-      const tx = await contract.answer(BigInt(profile.profileId), knows);
-      setStatusLink("Transaction submitted.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
-      await tx.wait();
-
+      state.pendingAnswers.set(profile.profileId, knows);
       state.completedProfileIds.add(profile.profileId);
-      saveCompleted();
+      savePendingAnswers();
+      saveBatchSubmitted(false);
       saveSettings();
 
       const currentStats = readStats(profile.profileId);
@@ -956,13 +1016,50 @@
       });
 
       updateProgress();
-      await refreshCurrentStats();
-      await refreshLeaderboard();
-      setStatusLink("Answer confirmed on-chain.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+      renderLeaderboard();
+      setStatus("Answer saved locally. You will submit one transaction at the end.");
       moveToNextUnanswered();
     } catch (error) {
       setStatus(error.shortMessage || error.message);
       updateVoteButtons();
+    }
+  }
+
+  async function submitBatchAnswers() {
+    try {
+      if (!state.viewerUsername) {
+        throw new Error("Enter your X username first.");
+      }
+
+      if (!state.signer) {
+        await connectWallet();
+      }
+
+      const { knows, profileIds } = batchAnswerEntries();
+      if (!profileIds.length) {
+        throw new Error("No new answers to submit.");
+      }
+
+      const contract = currentContract(false);
+      state.batchSubmitting = true;
+      renderCompletion();
+      setStatus("Waiting for one wallet confirmation to submit all answers...");
+
+      const tx = await contract.answerBatch(profileIds, knows);
+      setStatusLink("Batch transaction submitted.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+      await tx.wait();
+
+      profileIds.forEach((profileId) => state.onchainAnsweredProfileIds.add(profileId.toString()));
+      saveBatchSubmitted(true);
+      state.batchSubmitting = false;
+      updateProgress();
+      await refreshCurrentStats();
+      await refreshLeaderboard();
+      setStatusLink("All answers confirmed on-chain.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+    } catch (error) {
+      state.batchSubmitting = false;
+      renderCompletion();
+      setStatus(error.shortMessage || error.message);
     }
   }
 
@@ -1002,6 +1099,7 @@
     elements.previousProfile.addEventListener("click", () => moveProfile(-1));
     elements.nextProfile.addEventListener("click", () => moveProfile(1));
     elements.refreshLeaderboard.addEventListener("click", refreshLeaderboard);
+    elements.submitBatchAnswers.addEventListener("click", submitBatchAnswers);
     elements.voteKnow.addEventListener("click", () => submitAnswer(true));
     elements.voteDoNotKnow.addEventListener("click", () => submitAnswer(false));
 

@@ -106,6 +106,70 @@ contract RitualistRecognizerTest is Test {
         recognizer.answer(profileId, false);
     }
 
+    function testVoterCanAnswerBatch() public {
+        uint256 firstProfileId = createSampleProfile();
+        uint256 secondProfileId = createSampleProfile();
+        uint256 thirdProfileId = createSampleProfile();
+
+        uint256[] memory profileIds = new uint256[](3);
+        profileIds[0] = firstProfileId;
+        profileIds[1] = secondProfileId;
+        profileIds[2] = thirdProfileId;
+
+        bool[] memory knows = new bool[](3);
+        knows[0] = true;
+        knows[1] = false;
+        knows[2] = true;
+
+        vm.prank(voter);
+        recognizer.answerBatch(profileIds, knows);
+
+        (,,,,, uint256 firstKnowCount, uint256 firstDoNotKnowCount) = recognizer.getProfile(firstProfileId);
+        (,,,,, uint256 secondKnowCount, uint256 secondDoNotKnowCount) = recognizer.getProfile(secondProfileId);
+        (,,,,, uint256 thirdKnowCount, uint256 thirdDoNotKnowCount) = recognizer.getProfile(thirdProfileId);
+
+        assertEq(firstKnowCount, 1);
+        assertEq(firstDoNotKnowCount, 0);
+        assertEq(secondKnowCount, 0);
+        assertEq(secondDoNotKnowCount, 1);
+        assertEq(thirdKnowCount, 1);
+        assertEq(thirdDoNotKnowCount, 0);
+        assertTrue(recognizer.getAnswer(firstProfileId, voter) == RitualistRecognizer.RecognitionAnswer.Know);
+        assertTrue(recognizer.getAnswer(secondProfileId, voter) == RitualistRecognizer.RecognitionAnswer.DoNotKnow);
+        assertTrue(recognizer.getAnswer(thirdProfileId, voter) == RitualistRecognizer.RecognitionAnswer.Know);
+    }
+
+    function testBatchRequiresMatchingLengths() public {
+        uint256[] memory profileIds = new uint256[](1);
+        profileIds[0] = createSampleProfile();
+
+        bool[] memory knows = new bool[](0);
+
+        vm.expectRevert("Length mismatch");
+        vm.prank(voter);
+        recognizer.answerBatch(profileIds, knows);
+    }
+
+    function testBatchCannotIncludeAlreadyAnsweredProfile() public {
+        uint256 firstProfileId = createSampleProfile();
+        uint256 secondProfileId = createSampleProfile();
+
+        vm.prank(voter);
+        recognizer.answer(firstProfileId, true);
+
+        uint256[] memory profileIds = new uint256[](2);
+        profileIds[0] = firstProfileId;
+        profileIds[1] = secondProfileId;
+
+        bool[] memory knows = new bool[](2);
+        knows[0] = false;
+        knows[1] = true;
+
+        vm.expectRevert("Already answered");
+        vm.prank(voter);
+        recognizer.answerBatch(profileIds, knows);
+    }
+
     function testDifferentVotersCanAnswerSameProfile() public {
         uint256 profileId = createSampleProfile();
 
