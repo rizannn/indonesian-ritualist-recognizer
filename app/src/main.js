@@ -1470,6 +1470,7 @@
       updateProgress();
       updateGateVisibility();
       updateVoteButtons();
+      await renderProfile();
       await syncAllAnswers({ setStatus: true });
       await refreshCurrentStats();
       await refreshLeaderboard();
@@ -1521,6 +1522,7 @@
       updateWalletControls();
       updateGateVisibility();
       updateVoteButtons();
+      await renderProfile();
       await syncAllAnswers({ setStatus: true });
       await refreshCurrentStats();
       await refreshLeaderboard();
