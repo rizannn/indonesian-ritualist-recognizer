@@ -326,7 +326,7 @@
 
   async function getConnectProvider() {
     const injectedProvider = window.ethereum?.request ? window.ethereum : null;
-    if (injectedProvider) {
+    if (injectedProvider && !isMobileDevice()) {
       state.walletProvider = injectedProvider;
       state.walletProviderSource = "injected";
       attachWalletEvents(injectedProvider);
@@ -339,6 +339,13 @@
       } catch (error) {
         setStatus(error.shortMessage || error.message || "Wallet picker failed. Trying MetaMask fallback...");
       }
+    }
+
+    if (injectedProvider) {
+      state.walletProvider = injectedProvider;
+      state.walletProviderSource = "injected";
+      attachWalletEvents(injectedProvider);
+      return injectedProvider;
     }
 
     const MetaMaskSDK = window.RIRMetaMaskSDK?.default || window.RIRMetaMaskSDK;
@@ -536,14 +543,40 @@
   function saveSettings() {
     localStorage.setItem("rir.viewerUsername", state.viewerUsername);
     localStorage.setItem("rir.activeIndex", state.activeIndex.toString());
+    writeSessionToUrl();
   }
 
   function loadSettings() {
-    state.viewerUsername = normalizeUsername(localStorage.getItem("rir.viewerUsername"));
+    const params = new URLSearchParams(window.location.search);
+    const urlUsername = normalizeUsername(params.get("x") || params.get("u") || "");
+    state.viewerUsername = urlUsername || normalizeUsername(localStorage.getItem("rir.viewerUsername"));
     elements.viewerUsernameInput.value = state.viewerUsername;
-    const savedIndex = Number(localStorage.getItem("rir.activeIndex") || 0);
+    const urlIndex = Number(params.get("i"));
+    const savedIndex = Number.isInteger(urlIndex) ? urlIndex : Number(localStorage.getItem("rir.activeIndex") || 0);
     state.activeIndex = Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < profiles.length ? savedIndex : 0;
+    if (state.viewerUsername) {
+      localStorage.setItem("rir.viewerUsername", state.viewerUsername);
+      writeSessionToUrl();
+    }
     loadCompleted();
+  }
+
+  function writeSessionToUrl(options = {}) {
+    if (!state.viewerUsername || !window.history?.replaceState) {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("x", state.viewerUsername);
+    url.searchParams.set("i", state.activeIndex.toString());
+
+    if (options.connecting) {
+      url.searchParams.set("connect", "1");
+    } else {
+      url.searchParams.delete("connect");
+    }
+
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
   }
 
   function proxyUrlFor(username) {
@@ -1365,6 +1398,8 @@
         return;
       }
 
+      saveSettings();
+      writeSessionToUrl({ connecting: true });
       const ethereumProvider = await getConnectProvider();
       setWalletHint(
         isMobileDevice()
@@ -1394,6 +1429,7 @@
       await syncAllAnswers({ setStatus: true });
       await refreshCurrentStats();
       await refreshLeaderboard();
+      writeSessionToUrl();
     } catch (error) {
       setStatus(error.shortMessage || error.message);
     }
@@ -1656,6 +1692,10 @@
       await syncAllAnswers();
       await refreshCurrentStats();
       await refreshLeaderboard();
+    } else if (state.viewerUsername && new URLSearchParams(window.location.search).get("connect") === "1") {
+      updateGateVisibility();
+      setWalletHint("Return from your wallet detected. Tap Connect Wallet to finish if it does not continue automatically.");
+      connectWallet();
     }
   }
 
