@@ -680,6 +680,47 @@
     return null;
   }
 
+  function opaqueAvatarCanvas(image, size) {
+    if (!image) {
+      return null;
+    }
+
+    const avatarCanvas = document.createElement("canvas");
+    const avatarContext = avatarCanvas.getContext("2d", { willReadFrequently: true });
+    avatarCanvas.width = size;
+    avatarCanvas.height = size;
+
+    const imageRatio = image.naturalWidth / image.naturalHeight || 1;
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = image.naturalWidth;
+    let sourceHeight = image.naturalHeight;
+
+    if (imageRatio > 1) {
+      sourceWidth = image.naturalHeight;
+      sourceX = (image.naturalWidth - sourceWidth) / 2;
+    } else {
+      sourceHeight = image.naturalWidth;
+      sourceY = (image.naturalHeight - sourceHeight) / 2;
+    }
+
+    avatarContext.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, size, size);
+
+    try {
+      const imageData = avatarContext.getImageData(0, 0, size, size);
+      for (let index = 3; index < imageData.data.length; index += 4) {
+        if (imageData.data[index] > 8) {
+          imageData.data[index] = 255;
+        }
+      }
+      avatarContext.putImageData(imageData, 0, 0);
+    } catch {
+      // If a browser blocks pixel reads, keep the original image draw.
+    }
+
+    return avatarCanvas;
+  }
+
   function drawAvatar(context, image, x, y, size, fallbackText) {
     context.save();
     context.globalAlpha = 1;
@@ -695,24 +736,10 @@
     context.fillRect(x - size / 2, y - size / 2, size, size);
 
     if (image) {
-      const imageRatio = image.naturalWidth / image.naturalHeight || 1;
-      const targetRatio = 1;
-      let sourceX = 0;
-      let sourceY = 0;
-      let sourceWidth = image.naturalWidth;
-      let sourceHeight = image.naturalHeight;
-
-      if (imageRatio > targetRatio) {
-        sourceWidth = image.naturalHeight;
-        sourceX = (image.naturalWidth - sourceWidth) / 2;
-      } else {
-        sourceHeight = image.naturalWidth;
-        sourceY = (image.naturalHeight - sourceHeight) / 2;
-      }
-
+      const opaqueAvatar = opaqueAvatarCanvas(image, size);
       context.globalAlpha = 1;
-      context.filter = "brightness(1.85) contrast(1.18) saturate(1.16)";
-      context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x - size / 2, y - size / 2, size, size);
+      context.filter = "none";
+      context.drawImage(opaqueAvatar || image, x - size / 2, y - size / 2, size, size);
       context.filter = "none";
     } else {
       context.fillStyle = "#08210f";
@@ -741,8 +768,8 @@
     const displayName = viewerProfile.displayName || state.viewerUsername || "Ritualist";
     const username = state.viewerUsername ? `@${state.viewerUsername}` : "@ritualist";
     const canvas = document.createElement("canvas");
-    const width = 1200;
-    const height = 1350;
+    const width = 800;
+    const height = 800;
     const center = width / 2;
     const context = canvas.getContext("2d");
 
@@ -759,82 +786,87 @@
 
     context.strokeStyle = "rgba(31, 255, 43, 0.45)";
     context.lineWidth = 2;
-    context.roundRect(72, 72, width - 144, height - 144, 28);
+    context.roundRect(1, 1, width - 2, height - 2, 4);
     context.stroke();
 
     const logo = await loadImageForCanvas("./assets/ritual-logo.jpg");
     if (logo) {
-      const logoSize = 86;
+      const logoSize = 46;
       const logoX = center - logoSize / 2;
-      const logoY = 104;
+      const logoY = 52;
       context.shadowColor = "rgba(31, 255, 43, 0.35)";
-      context.shadowBlur = 26;
+      context.shadowBlur = 16;
       context.fillStyle = "#000";
       context.beginPath();
-      context.roundRect(logoX, logoY, logoSize, logoSize, 18);
+      context.roundRect(logoX, logoY, logoSize, logoSize, 8);
       context.fill();
       context.shadowBlur = 0;
       context.save();
       context.beginPath();
-      context.roundRect(logoX, logoY, logoSize, logoSize, 18);
+      context.roundRect(logoX, logoY, logoSize, logoSize, 8);
       context.clip();
-      context.drawImage(logo, logoX + 16, logoY + 16, 54, 54);
+      context.drawImage(logo, logoX + 12, logoY + 12, 22, 22);
       context.restore();
     }
 
     context.textAlign = "center";
     context.fillStyle = "#b9cbbd";
-    context.font = "800 24px Arial, sans-serif";
-    context.fillText("INDONESIAN RITUALIST RECOGNIZER", center, 236);
+    context.font = "400 14px Arial, sans-serif";
+    context.fillText("INDONESIAN RITUALIST RECOGNIZER", center, 134);
 
     context.fillStyle = "#f2f8ef";
-    context.font = "900 70px Arial, sans-serif";
-    context.fillText("Recognition complete", center, 320);
-
-    const glow = context.createRadialGradient(center, 520, 0, center, 520, 250);
-    glow.addColorStop(0, "rgba(31, 255, 43, 0.18)");
-    glow.addColorStop(1, "rgba(31, 255, 43, 0)");
-    context.fillStyle = glow;
-    context.beginPath();
-    context.arc(center, 520, 250, 0, Math.PI * 2);
-    context.fill();
+    context.font = "900 66px Arial, sans-serif";
+    context.fillText("Recognition", center, 202);
+    context.fillText("complete", center, 272);
 
     const avatar = await imageElementForCanvas(elements.completionAvatar);
-    drawAvatar(context, avatar, center, 500, 190, state.viewerUsername || displayName);
+    drawAvatar(context, avatar, center, 365, 114, state.viewerUsername || displayName);
 
     context.fillStyle = "#f2f8ef";
-    fitText(context, displayName, 860, 58, 34);
-    drawCenteredText(context, displayName, center, 680, 860, 66);
+    fitText(context, displayName, 520, 36, 24);
+    drawCenteredText(context, displayName, center, 498, 520, 40);
 
     context.fillStyle = "#1fff2b";
-    context.font = "900 34px Arial, sans-serif";
-    context.fillText(username, center, 770);
+    context.font = "900 16px Arial, sans-serif";
+    context.fillText(username, center, 522);
 
     context.fillStyle = "rgba(9, 31, 15, 0.9)";
     context.strokeStyle = "rgba(31, 255, 43, 0.35)";
-    context.lineWidth = 2;
-    context.roundRect(180, 820, 380, 170, 18);
-    context.roundRect(640, 820, 380, 170, 18);
+    context.lineWidth = 1;
+    context.beginPath();
+    context.roundRect(110, 552, 286, 97, 7);
+    context.roundRect(408, 552, 286, 97, 7);
     context.fill();
     context.stroke();
 
     context.fillStyle = "#1fff2b";
-    context.font = "900 48px Arial, sans-serif";
-    context.fillText(`${completed}/${total}`, 370, 895);
-    context.fillText(state.batchSubmitted ? "On-chain" : "Ready", 830, 895);
+    context.font = "900 28px Arial, sans-serif";
+    context.fillText(`${completed}/${total}`, 253, 599);
+    context.fillText(state.batchSubmitted ? "On-chain" : "Ready", 551, 599);
 
     context.fillStyle = "#b9cbbd";
-    context.font = "800 24px Arial, sans-serif";
-    context.fillText("Members checked", 370, 942);
-    context.fillText("Batch submit", 830, 942);
+    context.font = "400 18px Arial, sans-serif";
+    context.fillText("Members checked", 253, 626);
+    context.fillText("Batch submit", 551, 626);
+
+    context.fillStyle = "#6fa27a";
+    context.beginPath();
+    context.roundRect(101, 675, 270, 54, 7);
+    context.fill();
+
+    context.fillStyle = "#22ff38";
+    context.beginPath();
+    context.roundRect(377, 675, 327, 54, 7);
+    context.fill();
+
+    context.fillStyle = "#020b05";
+    context.font = "900 17px Arial, sans-serif";
+    context.fillText("Submit 0 answers", 236, 708);
+    context.fillText("Download recognition complete", 540, 708);
 
     context.fillStyle = "#f2f8ef";
-    context.font = "900 30px Arial, sans-serif";
-    context.fillText("Indonesian Ritualist Recognizer", center, 1128);
-
-    context.fillStyle = "#b9cbbd";
-    context.font = "800 24px Arial, sans-serif";
-    context.fillText("Made by rizan - Dedicated for Ritual", center, 1184);
+    context.font = "900 14px Arial, sans-serif";
+    context.fillText("MADE BY RIZAN - DEDICATED FOR RITUAL", center, 756);
 
     const link = document.createElement("a");
     link.download = `indonesian-ritualist-recognizer-${normalizeUsername(state.viewerUsername) || "result"}.png`;
