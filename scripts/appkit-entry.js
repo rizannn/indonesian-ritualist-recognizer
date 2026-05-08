@@ -2,7 +2,7 @@ import { createAppKit } from "@reown/appkit";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { defineChain } from "@reown/appkit/networks";
 
-const projectId = "ritual-wordle-demo";
+const projectId = "a4187d912b2e6cbb61de3efc1829730b";
 
 const ritualNetwork = defineChain({
   id: 1979,
