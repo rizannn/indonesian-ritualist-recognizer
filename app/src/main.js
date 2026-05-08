@@ -564,6 +564,24 @@
     return { knows, profileIds };
   }
 
+  function recordOnchainAnswer(profile, answer) {
+    const normalizedAnswer = Number(answer);
+    if (!profile || normalizedAnswer === 0) {
+      return false;
+    }
+
+    const knows = normalizedAnswer === 1;
+    const hadAnswer =
+      state.onchainAnsweredProfileIds.has(profile.profileId) &&
+      state.pendingAnswers.has(profile.profileId) &&
+      state.completedProfileIds.has(profile.profileId);
+
+    state.onchainAnsweredProfileIds.add(profile.profileId);
+    state.pendingAnswers.set(profile.profileId, knows);
+    state.completedProfileIds.add(profile.profileId);
+    return !hadAnswer;
+  }
+
   function updateProgress() {
     const completed = state.completedProfileIds.size;
     const total = profiles.length;
@@ -923,12 +941,64 @@
     try {
       const contract = currentContract(true);
       const answer = await contract.getAnswer(BigInt(profile.profileId), state.account);
-      if (Number(answer) !== 0) {
-        state.onchainAnsweredProfileIds.add(profile.profileId);
+      if (recordOnchainAnswer(profile, answer)) {
+        savePendingAnswers();
+        if (state.completedProfileIds.size >= profiles.length) {
+          saveBatchSubmitted(true);
+        }
+        updateProgress();
         updateVoteButtons();
       }
     } catch {
       // The status area is reserved for user-facing action failures.
+    }
+  }
+
+  async function syncAllAnswers(options = {}) {
+    if (!state.account || !state.provider || !isValidContractAddress()) {
+      return 0;
+    }
+
+    try {
+      const contract = currentContract(true);
+      const results = await Promise.allSettled(
+        profiles.map((profile) => contract.getAnswer(BigInt(profile.profileId), state.account))
+      );
+      let loadedCount = 0;
+      let changed = false;
+
+      results.forEach((result, index) => {
+        if (result.status !== "fulfilled" || Number(result.value) === 0) {
+          return;
+        }
+
+        loadedCount += 1;
+        changed = recordOnchainAnswer(profiles[index], result.value) || changed;
+      });
+
+      if (changed) {
+        savePendingAnswers();
+      }
+
+      if (loadedCount >= profiles.length && profiles.length > 0) {
+        saveBatchSubmitted(true);
+      }
+
+      updateProgress();
+      updateVoteButtons();
+
+      if (options.setStatus && loadedCount >= profiles.length && profiles.length > 0) {
+        setStatus("All on-chain answers loaded. You can download your completion card.");
+      } else if (options.setStatus && loadedCount > 0) {
+        setStatus(`Loaded ${loadedCount}/${profiles.length} on-chain answers.`);
+      }
+
+      return loadedCount;
+    } catch (error) {
+      if (options.setStatus) {
+        setStatus(error.shortMessage || error.message);
+      }
+      return 0;
     }
   }
 
@@ -1077,7 +1147,7 @@
       updateProgress();
       updateGateVisibility();
       updateVoteButtons();
-      await syncCurrentAnswer();
+      await syncAllAnswers({ setStatus: true });
       await refreshCurrentStats();
       await refreshLeaderboard();
     } catch (error) {
@@ -1122,7 +1192,7 @@
       updateWalletControls();
       updateGateVisibility();
       updateVoteButtons();
-      await syncCurrentAnswer();
+      await syncAllAnswers({ setStatus: true });
       await refreshCurrentStats();
       await refreshLeaderboard();
       setStatus("Wallet connected on Ritual Chain.");
@@ -1250,7 +1320,13 @@
       setStatusLink("Batch transaction submitted.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
       await tx.wait();
 
-      profileIds.forEach((profileId) => state.onchainAnsweredProfileIds.add(profileId.toString()));
+      profileIds.forEach((profileId, index) => {
+        const normalizedProfileId = profileId.toString();
+        state.onchainAnsweredProfileIds.add(normalizedProfileId);
+        state.pendingAnswers.set(normalizedProfileId, Boolean(knows[index]));
+        state.completedProfileIds.add(normalizedProfileId);
+      });
+      savePendingAnswers();
       saveBatchSubmitted(true);
       state.batchSubmitting = false;
       updateProgress();
@@ -1320,7 +1396,7 @@
     updateGateVisibility();
     updateVoteButtons();
     if (state.account) {
-      await syncCurrentAnswer();
+      await syncAllAnswers();
       await refreshCurrentStats();
       await refreshLeaderboard();
     }
