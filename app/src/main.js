@@ -97,6 +97,7 @@
     viewerProfileRequestId: 0,
     walletEventsProvider: null,
     walletProvider: null,
+    walletProviderSource: "",
     viewerUsername: ""
   };
 
@@ -236,6 +237,7 @@
 
     if (provider) {
       state.walletProvider = provider;
+      state.walletProviderSource = "appkit";
     }
 
     if (address) {
@@ -262,6 +264,7 @@
 
       if (provider?.request) {
         state.walletProvider = provider;
+        state.walletProviderSource = "appkit";
       }
 
       state.account = address || "";
@@ -283,14 +286,16 @@
       return state.walletProvider;
     }
 
-    const walletPickerProvider = appKitProvider();
-    if (walletPickerProvider?.request) {
-      state.walletProvider = walletPickerProvider;
-      return walletPickerProvider;
+    if (window.ethereum?.request) {
+      state.walletProviderSource = "injected";
+      return window.ethereum;
     }
 
-    if (window.ethereum?.request) {
-      return window.ethereum;
+    const walletPickerProvider = appKitAddress() ? appKitProvider() : null;
+    if (walletPickerProvider?.request) {
+      state.walletProvider = walletPickerProvider;
+      state.walletProviderSource = "appkit";
+      return walletPickerProvider;
     }
 
     return null;
@@ -319,15 +324,20 @@
   }
 
   async function getConnectProvider() {
-    attachAppKitEvents();
-    if (appKitModal()) {
-      return connectWithAppKit();
-    }
-
-    const injectedProvider = walletProvider();
+    const injectedProvider = window.ethereum?.request ? window.ethereum : null;
     if (injectedProvider) {
+      state.walletProvider = injectedProvider;
+      state.walletProviderSource = "injected";
       attachWalletEvents(injectedProvider);
       return injectedProvider;
+    }
+
+    if (isMobileDevice() && appKitModal()) {
+      try {
+        return await connectWithAppKit();
+      } catch (error) {
+        setStatus(error.shortMessage || error.message || "Wallet picker failed. Trying MetaMask fallback...");
+      }
     }
 
     const MetaMaskSDK = window.RIRMetaMaskSDK?.default || window.RIRMetaMaskSDK;
@@ -350,6 +360,7 @@
       });
 
     state.walletProvider = state.metaMaskSdk.getProvider();
+    state.walletProviderSource = "metamask-sdk";
     attachWalletEvents(state.walletProvider);
     return state.walletProvider;
   }
@@ -360,6 +371,7 @@
       throw new Error("Wallet picker did not load. Refresh and try again.");
     }
 
+    attachAppKitEvents();
     const current = syncAppKitState();
     if (current.provider?.request && current.address) {
       return current.provider;
@@ -382,6 +394,7 @@
       const maybeResolve = () => {
         const next = syncAppKitState();
         if (next.provider?.request && next.address) {
+          state.walletProviderSource = "appkit";
           cleanup();
           resolve(next.provider);
         }
@@ -1347,7 +1360,7 @@
           ? "Your wallet may open for approval. Confirm there, then return here."
           : "Confirm the wallet connection request."
       );
-      if (!appKitModal()) {
+      if (state.walletProviderSource !== "appkit") {
         await requestWalletSelection(ethereumProvider);
         await ethereumProvider.request({ method: "eth_requestAccounts", params: [] });
       }
@@ -1454,6 +1467,7 @@
     state.provider = null;
     state.signer = null;
     state.walletProvider = null;
+    state.walletProviderSource = "";
     state.metaMaskSdk = null;
     updateWalletControls();
     loadCompleted();
