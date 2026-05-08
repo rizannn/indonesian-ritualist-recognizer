@@ -92,6 +92,7 @@
     appKitProviderUnsubscribe: null,
     metaMaskSdk: null,
     provider: null,
+    publicProvider: null,
     signer: null,
     viewerProfile: null,
     viewerProfileRequestId: 0,
@@ -719,16 +720,26 @@
       throw new Error("Contract address is not configured yet.");
     }
 
-    if (!isRitualChain()) {
+    if (!readOnly && !isRitualChain()) {
       throw new Error("Switch to Ritual Chain to continue.");
     }
 
-    const runner = readOnly ? state.provider : state.signer;
+    const runner = readOnly ? readOnlyProvider() : state.signer;
     if (!runner) {
       throw new Error("Connect your wallet first.");
     }
 
     return new ethers.Contract(contractAddress, contractAbi, runner);
+  }
+
+  function readOnlyProvider() {
+    if (!window.ethers) {
+      return null;
+    }
+
+    state.publicProvider =
+      state.publicProvider || new ethers.JsonRpcProvider(ritualChain.rpcUrls[0], Number(ritualChain.chainId));
+    return state.publicProvider;
   }
 
   function batchAnswerEntries() {
@@ -1138,7 +1149,7 @@
       return;
     }
 
-    if (!state.provider || !isValidContractAddress()) {
+    if (!isValidContractAddress()) {
       const stats = readStats(profile.profileId);
       elements.knowCount.textContent = stats.knowCount.toString();
       elements.doNotKnowCount.textContent = stats.doNotKnowCount.toString();
@@ -1165,7 +1176,7 @@
 
   async function syncCurrentAnswer() {
     const profile = profiles[state.activeIndex];
-    if (!profile || !state.account || !state.provider || !isValidContractAddress()) {
+    if (!profile || !state.account || !isValidContractAddress()) {
       return;
     }
 
@@ -1186,7 +1197,7 @@
   }
 
   async function syncAllAnswers(options = {}) {
-    if (!state.account || !state.provider || !isValidContractAddress()) {
+    if (!state.account || !isValidContractAddress()) {
       return 0;
     }
 
@@ -1299,7 +1310,7 @@
   async function refreshLeaderboard() {
     renderLeaderboard();
 
-    if (!state.provider || !isValidContractAddress()) {
+    if (!isValidContractAddress()) {
       return;
     }
 
