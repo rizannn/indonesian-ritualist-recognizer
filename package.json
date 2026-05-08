@@ -1,0 +1,15 @@
+{
+  "name": "indonesian-ritualist-recognizer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python -m http.server 5173 --bind 127.0.0.1 --directory app",
+    "build:seed": "node scripts/build-contract-seed.mjs",
+    "cache:profiles": "node scripts/cache-profiles.mjs",
+    "cache:profiles:local": "node scripts/cache-profiles.mjs --local-only",
+    "cache:profiles:fast": "node scripts/cache-profiles.mjs --skip-proxy",
+    "cache:names": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$env:CACHE_PROFILE_TIMEOUT_MS='30000'; $env:CACHE_PROFILE_CONCURRENCY='2'; npm run cache:profiles\"",
+    "set:contract": "node scripts/set-contract-address.mjs"
+  }
+}

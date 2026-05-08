@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <title>Indonesian Ritualist Recognizer</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260508-5" />
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js" defer></script>
+    <script src="./src/profiles.js?v=20260508-5" defer></script>
+    <script src="./src/profile-cache.js?v=20260508-5" defer></script>
+    <script src="./src/main.js?v=20260508-5" defer></script>
+  </head>
+  <body>
+    <section class="gate-screen" id="usernameGate" aria-label="Enter X username">
+      <div class="gate-card">
+        <div class="brand-mark gate-mark">
+          <img src="./assets/ritual-logo.jpg" alt="Ritual logo" />
+        </div>
+        <p class="eyebrow">Indonesian Ritualist Recognizer</p>
+        <h1>Enter your X username.</h1>
+        <p class="gate-copy">
+          Your X identity appears in the recognizer header before you start answering.
+        </p>
+        <form class="gate-form" id="usernameForm">
+          <label>
+            X username
+            <input
+              id="viewerUsernameInput"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              placeholder="e.g. rizann67"
+            />
+          </label>
+          <button class="primary-button" id="usernameSubmit" type="submit">Continue</button>
+        </form>
+        <div class="gate-loading" id="usernameLoading" hidden>
+          <span class="loading-ring" aria-hidden="true"></span>
+          <span>Fetching X profile</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="gate-screen is-hidden" id="walletGate" aria-label="Connect wallet">
+      <div class="gate-card">
+        <span class="mini-avatar large">
+          <img id="gateViewerAvatar" alt="" />
+          <span id="gateViewerInitial">?</span>
+        </span>
+        <p class="eyebrow">Wallet required</p>
+        <h1>Connect your wallet.</h1>
+        <p class="gate-copy">
+          Every recognition answer is submitted as an on-chain transaction.
+        </p>
+        <div class="gate-identity">
+          <strong id="gateViewerName">X user</strong>
+          <small id="gateViewerUsername">@username</small>
+        </div>
+        <button class="primary-button" id="setupConnectWallet" type="button">Connect Wallet</button>
+        <button class="ghost-button" id="backToUsername" type="button">Edit username</button>
+      </div>
+    </section>
+
+    <main class="app-shell is-hidden" id="recognizerApp">
+      <header class="topbar">
+        <div class="brand-lockup" aria-label="Indonesian Ritualist Recognizer">
+          <div class="brand-mark">
+            <img src="./assets/ritual-logo.jpg" alt="Ritual logo" />
+          </div>
+          <div>
+            <h1>Indonesian Ritualist Recognizer</h1>
+            <p>On-chain member recognition</p>
+            <p class="credit-line">
+              Made by
+              <a href="https://x.com/rizann67" target="_blank" rel="noreferrer">rizan</a>
+              dedicated for
+              <a href="https://x.com/ritualnet" target="_blank" rel="noreferrer">Ritual</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="user-strip">
+          <button class="user-pill" id="userPill" type="button" aria-label="Edit X username">
+            <span class="mini-avatar">
+              <img id="viewerAvatar" alt="" />
+              <span id="viewerInitial">?</span>
+            </span>
+            <span>
+              <strong id="viewerName">Set your X</strong>
+              <small id="viewerUsername">@username</small>
+            </span>
+            <span class="edit-mark">Edit</span>
+          </button>
+          <button class="wallet-button" id="connectWallet" type="button">Connect Wallet</button>
+        </div>
+      </header>
+
+      <section class="progress-block" aria-label="Recognition progress">
+        <div class="progress-copy">
+          <p><strong id="completedCount">0</strong> / <span id="totalCount">100</span> completed</p>
+          <p><span id="remainingCount">100</span> remaining</p>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </section>
+
+      <section class="main-grid">
+        <article class="completion-card is-hidden" id="completionCard" aria-label="Recognition completed">
+          <div class="completion-snapshot" id="completionSnapshot">
+            <div class="brand-mark completion-mark">
+              <img src="./assets/ritual-logo.jpg" alt="Ritual logo" />
+            </div>
+            <p class="eyebrow">Indonesian Ritualist Recognizer</p>
+            <h2>Recognition complete</h2>
+            <div class="completion-user">
+              <span class="mini-avatar large">
+                <img id="completionAvatar" alt="" />
+                <span id="completionInitial">?</span>
+              </span>
+              <div>
+                <strong id="completionName">X user</strong>
+                <small id="completionUsername">@username</small>
+              </div>
+            </div>
+            <div class="completion-stats">
+              <div>
+                <strong id="completionTotal">100</strong>
+                <span>Members checked</span>
+              </div>
+              <div>
+                <strong>On-chain</strong>
+                <span>Ritual verified</span>
+              </div>
+            </div>
+            <a class="primary-button completion-share" id="shareResult" href="https://x.com/intent/tweet" target="_blank" rel="noreferrer">
+              Share result
+            </a>
+            <p class="completion-footer">Made by rizan - Dedicated for Ritual</p>
+          </div>
+        </article>
+
+        <article class="recognition-card" id="recognitionCard" aria-label="Current Ritual community member">
+          <div class="candidate-avatar">
+            <img id="avatar" alt="Current X profile avatar" />
+            <span id="candidateInitial">?</span>
+          </div>
+
+          <div class="candidate-copy">
+            <p class="profile-step" id="profileCounter">Member 1 of 100</p>
+            <h2 id="displayName">Loading member</h2>
+            <a id="xLink" href="https://x.com" target="_blank" rel="noreferrer">@username</a>
+            <p id="profileBio">Indonesian Ritual community member.</p>
+          </div>
+
+          <div class="stats-row" aria-label="Current member stats">
+            <div>
+              <strong id="knowCount">0</strong>
+              <span>Recognized</span>
+            </div>
+            <div>
+              <strong id="doNotKnowCount">0</strong>
+              <span>Not recognized</span>
+            </div>
+          </div>
+
+          <div class="question-copy">Do you recognize this Ritual community member?</div>
+
+          <div class="vote-actions">
+            <button class="no-button" id="voteDoNotKnow" type="button">No</button>
+            <button class="yes-button" id="voteKnow" type="button">Yes, recognized</button>
+          </div>
+
+          <div class="card-nav">
+            <button class="ghost-button" id="previousProfile" type="button">Previous</button>
+            <button class="ghost-button" id="nextProfile" type="button">Skip</button>
+          </div>
+
+          <p class="status-line" id="statusLine">Connect wallet to submit on-chain answers.</p>
+        </article>
+
+        <aside class="leaderboard-card" aria-label="Recognition leaderboard">
+          <div class="panel-title">
+            <p class="eyebrow">Leaderboard</p>
+            <button class="ghost-button small" id="refreshLeaderboard" type="button">Refresh</button>
+          </div>
+          <ol class="leaderboard-list" id="leaderboardList"></ol>
+        </aside>
+      </section>
+
+      <footer class="app-footer">
+        <a href="https://explorer.ritualfoundation.org/address/0xce0c55a7eD14e61F0A828e2cDcc48cF2b34401DF" target="_blank" rel="noreferrer">
+          Contract
+        </a>
+        <span>Ritual Chain</span>
+      </footer>
+    </main>
+  </body>
+</html>
