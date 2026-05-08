@@ -489,10 +489,15 @@
   }
 
   async function readChainId() {
-    const appKitChainId = normalizeChainId(appKitModal()?.getChainId?.());
-    if (appKitChainId) {
-      state.chainId = appKitChainId;
-      return state.chainId;
+    // Only trust AppKit's cached chainId when we're actually connected via AppKit.
+    // On mobile with an injected provider, AppKit's getChainId() can return
+    // a stale value (e.g. Ethereum mainnet) even after we've switched chains.
+    if (state.walletProviderSource === "appkit") {
+      const appKitChainId = normalizeChainId(appKitModal()?.getChainId?.());
+      if (appKitChainId) {
+        state.chainId = appKitChainId;
+        return state.chainId;
+      }
     }
 
     const provider = walletProvider();
@@ -511,8 +516,12 @@
       throw new Error("No wallet found. Install MetaMask or another EVM wallet.");
     }
 
+    // Use AppKit's switchNetwork only when actually connected via AppKit.
+    // On mobile with an injected provider (MetaMask in-app browser, Trust, etc.)
+    // modal.switchNetwork() targets AppKit's internal state, not window.ethereum,
+    // so the actual wallet stays on the old chain (usually Ethereum mainnet).
     const modal = appKitModal();
-    if (modal && window.RIRAppKit?.ritualNetwork) {
+    if (modal && window.RIRAppKit?.ritualNetwork && state.walletProviderSource === "appkit") {
       await modal.switchNetwork(window.RIRAppKit.ritualNetwork, { throwOnFailure: true });
       await readChainId();
       if (!isRitualChain()) {
@@ -521,6 +530,7 @@
       return;
     }
 
+    // Injected provider path: send chain switch directly to the wallet.
     try {
       await provider.request({
         method: "wallet_switchEthereumChain",
