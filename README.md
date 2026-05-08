@@ -45,6 +45,15 @@ The frontend is already configured for Ritual Chain and the deployed contract:
 0xce0c55a7eD14e61F0A828e2cDcc48cF2b34401DF
 ```
 
+## GitHub Pages
+
+The static app can be deployed with the `Deploy static app` workflow after GitHub Pages is enabled in the repository:
+
+1. Open repository `Settings`.
+2. Open `Pages`.
+3. Set the source to `GitHub Actions`.
+4. Run `Deploy static app` from the `Actions` tab.
+
 ## Cache X Profiles
 
 The website reads candidate names and avatars from local cache files, not live X requests.
