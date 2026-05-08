@@ -689,8 +689,8 @@
     context.clip();
 
     const avatarBackground = context.createRadialGradient(x, y, size * 0.1, x, y, size * 0.55);
-    avatarBackground.addColorStop(0, "#d7eadb");
-    avatarBackground.addColorStop(1, "#6c8d72");
+    avatarBackground.addColorStop(0, "#f4fff5");
+    avatarBackground.addColorStop(1, "#b7d8bd");
     context.fillStyle = avatarBackground;
     context.fillRect(x - size / 2, y - size / 2, size, size);
 
@@ -711,10 +711,9 @@
       }
 
       context.globalAlpha = 1;
-      context.filter = "brightness(1.3) contrast(1.08) saturate(1.06)";
+      context.filter = "brightness(1.85) contrast(1.18) saturate(1.16)";
       context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x - size / 2, y - size / 2, size, size);
       context.filter = "none";
-      context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, x - size / 2, y - size / 2, size, size);
     } else {
       context.fillStyle = "#08210f";
       context.fillRect(x - size / 2, y - size / 2, size, size);
