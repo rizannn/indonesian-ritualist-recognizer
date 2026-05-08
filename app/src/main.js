@@ -307,17 +307,53 @@
       return;
     }
 
-    provider.on("accountsChanged", (accounts) => {
+    provider.on("accountsChanged", async (accounts) => {
       if (!accounts.length) {
         disconnectWallet();
+        return;
+      }
+
+      if (isMobileDevice()) {
+        try {
+          state.account = accounts[0];
+          if (window.ethers && walletProvider()) {
+            state.provider = new ethers.BrowserProvider(walletProvider());
+            state.signer = await state.provider.getSigner();
+            state.account = await state.signer.getAddress();
+          }
+          loadCompleted();
+          updateWalletControls();
+          updateProgress();
+          updateGateVisibility();
+          updateVoteButtons();
+        } catch {
+          window.location.reload();
+        }
         return;
       }
 
       window.location.reload();
     });
 
-    provider.on("chainChanged", (chainId) => {
-      state.chainId = chainId;
+    provider.on("chainChanged", async (chainId) => {
+      state.chainId = normalizeChainId(chainId);
+
+      if (isMobileDevice()) {
+        try {
+          if (window.ethers && walletProvider()) {
+            state.provider = new ethers.BrowserProvider(walletProvider());
+            state.signer = await state.provider.getSigner();
+            state.account = await state.signer.getAddress();
+          }
+          updateWalletControls();
+          updateGateVisibility();
+          updateVoteButtons();
+        } catch {
+          window.location.reload();
+        }
+        return;
+      }
+
       window.location.reload();
     });
 
@@ -326,26 +362,25 @@
 
   async function getConnectProvider() {
     const injectedProvider = window.ethereum?.request ? window.ethereum : null;
-    if (injectedProvider && !isMobileDevice()) {
+
+    // If an injected provider exists, use it directly. This covers both
+    // desktop extensions AND mobile wallet browsers (MetaMask, Trust, etc.).
+    // Previously this skipped the injected provider on mobile, causing
+    // AppKit to open a deep-link redirect loop that lost page state.
+    if (injectedProvider) {
       state.walletProvider = injectedProvider;
       state.walletProviderSource = "injected";
       attachWalletEvents(injectedProvider);
       return injectedProvider;
     }
 
+    // No injected provider (regular mobile browser) — try AppKit wallet picker.
     if (isMobileDevice() && appKitModal()) {
       try {
         return await connectWithAppKit();
       } catch (error) {
         setStatus(error.shortMessage || error.message || "Wallet picker failed. Trying MetaMask fallback...");
       }
-    }
-
-    if (injectedProvider) {
-      state.walletProvider = injectedProvider;
-      state.walletProviderSource = "injected";
-      attachWalletEvents(injectedProvider);
-      return injectedProvider;
     }
 
     const MetaMaskSDK = window.RIRMetaMaskSDK?.default || window.RIRMetaMaskSDK;
@@ -510,7 +545,9 @@
 
   function updateWalletControls() {
     if (!state.account) {
-      const needsWalletBrowser = isMobileDevice() && !hasWalletProvider() && !appKitModal();
+      const hasInjected = Boolean(window.ethereum?.request);
+      const needsWalletBrowser = isMobileDevice() && !hasInjected && !appKitModal();
+      const inWalletBrowser = isMobileDevice() && hasInjected;
       const label = needsWalletBrowser ? "Open Wallet" : "Connect Wallet";
 
       elements.connectWallet.textContent = label;
@@ -521,7 +558,9 @@
       setWalletHint(
         needsWalletBrowser
           ? "Mobile detected. Open a wallet browser, or refresh and try the wallet picker again."
-          : "Choose any EVM wallet from the picker to submit on-chain answers."
+          : inWalletBrowser
+            ? "Tap Connect Wallet to approve in your wallet."
+            : "Choose any EVM wallet from the picker to submit on-chain answers."
       );
       return;
     }
@@ -1407,7 +1446,12 @@
           : "Confirm the wallet connection request."
       );
       if (state.walletProviderSource !== "appkit") {
-        await requestWalletSelection(ethereumProvider);
+        // Skip requestWalletSelection on mobile — wallet_requestPermissions
+        // triggers a re-permission flow that can navigate away from the page,
+        // losing state and sending the user back to the username screen.
+        if (!isMobileDevice()) {
+          await requestWalletSelection(ethereumProvider);
+        }
         await ethereumProvider.request({ method: "eth_requestAccounts", params: [] });
       }
       await readChainId();
@@ -1432,6 +1476,8 @@
       writeSessionToUrl();
     } catch (error) {
       setStatus(error.shortMessage || error.message);
+      updateWalletControls();
+      updateGateVisibility();
     }
   }
 
@@ -1694,8 +1740,15 @@
       await refreshLeaderboard();
     } else if (state.viewerUsername && new URLSearchParams(window.location.search).get("connect") === "1") {
       updateGateVisibility();
-      setWalletHint("Return from your wallet detected. Tap Connect Wallet to finish if it does not continue automatically.");
-      connectWallet();
+      // On mobile wallet browsers (e.g. MetaMask in-app), if the user was
+      // redirected back and an injected provider is available, auto-connect
+      // immediately. Otherwise show a hint to tap the button.
+      if (isMobileDevice() && window.ethereum?.request) {
+        connectWallet();
+      } else {
+        setWalletHint("Return from your wallet detected. Tap Connect Wallet to finish if it does not continue automatically.");
+        connectWallet();
+      }
     }
   }
 
