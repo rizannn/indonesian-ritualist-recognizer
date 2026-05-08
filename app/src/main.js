@@ -42,6 +42,7 @@
     completedCount: document.getElementById("completedCount"),
     connectWallet: document.getElementById("connectWallet"),
     displayName: document.getElementById("displayName"),
+    downloadResult: document.getElementById("downloadResult"),
     doNotKnowCount: document.getElementById("doNotKnowCount"),
     knowCount: document.getElementById("knowCount"),
     gateViewerAvatar: document.getElementById("gateViewerAvatar"),
@@ -59,7 +60,6 @@
     refreshLeaderboard: document.getElementById("refreshLeaderboard"),
     remainingCount: document.getElementById("remainingCount"),
     setupConnectWallet: document.getElementById("setupConnectWallet"),
-    shareResult: document.getElementById("shareResult"),
     statusLine: document.getElementById("statusLine"),
     submitBatchAnswers: document.getElementById("submitBatchAnswers"),
     totalCount: document.getElementById("totalCount"),
@@ -601,10 +601,146 @@
     elements.completionName.textContent = viewerProfile.displayName || state.viewerUsername;
     elements.completionUsername.textContent = `@${state.viewerUsername}`;
     elements.completionTotal.textContent = `${completed}/${total}`;
-    elements.shareResult.href = `https://x.com/intent/tweet?text=${encodeURIComponent(
-      `I recognized ${completed}/${total} Indonesian Ritualists on-chain.`
-    )}&url=${encodeURIComponent(`${explorerBaseUrl}/address/${contractAddress}`)}`;
     setAvatar(elements.completionAvatar, elements.completionInitial, viewerProfile.avatarUrl || "", state.viewerUsername);
+  }
+
+  function drawCenteredText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    const lines = [];
+    let line = "";
+
+    words.forEach((word) => {
+      const nextLine = line ? `${line} ${word}` : word;
+      if (context.measureText(nextLine).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+        return;
+      }
+
+      line = nextLine;
+    });
+
+    if (line) {
+      lines.push(line);
+    }
+
+    lines.forEach((textLine, index) => {
+      context.fillText(textLine, x, y + index * lineHeight);
+    });
+
+    return y + Math.max(lines.length - 1, 0) * lineHeight;
+  }
+
+  function loadImageForCanvas(src) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => resolve(null);
+      image.src = src;
+    });
+  }
+
+  async function downloadCompletionImage() {
+    const total = profiles.length;
+    const completed = state.completedProfileIds.size;
+    const viewerProfile = state.viewerProfile || profileCache.get(state.viewerUsername.toLowerCase()) || {};
+    const displayName = viewerProfile.displayName || state.viewerUsername || "Ritualist";
+    const username = state.viewerUsername ? `@${state.viewerUsername}` : "@ritualist";
+    const canvas = document.createElement("canvas");
+    const width = 1200;
+    const height = 1500;
+    const center = width / 2;
+    const context = canvas.getContext("2d");
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const gradient = context.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#031207");
+    gradient.addColorStop(0.48, "#06230f");
+    gradient.addColorStop(1, "#021006");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
+
+    context.shadowColor = "rgba(31, 255, 43, 0.32)";
+    context.shadowBlur = 70;
+    context.fillStyle = "rgba(31, 255, 43, 0.12)";
+    context.beginPath();
+    context.arc(center, 485, 260, 0, Math.PI * 2);
+    context.fill();
+    context.shadowBlur = 0;
+
+    context.strokeStyle = "rgba(31, 255, 43, 0.45)";
+    context.lineWidth = 2;
+    context.roundRect(72, 72, width - 144, height - 144, 28);
+    context.stroke();
+
+    const logo = await loadImageForCanvas("./assets/ritual-logo.jpg");
+    if (logo) {
+      context.save();
+      context.beginPath();
+      context.arc(center, 210, 58, 0, Math.PI * 2);
+      context.clip();
+      context.drawImage(logo, center - 58, 152, 116, 116);
+      context.restore();
+    }
+
+    context.textAlign = "center";
+    context.fillStyle = "#f2f8ef";
+    context.font = "900 76px Arial, sans-serif";
+    drawCenteredText(context, "Recognition complete", center, 380, 920, 86);
+
+    context.fillStyle = "#b9cbbd";
+    context.font = "800 24px Arial, sans-serif";
+    context.fillText("INDONESIAN RITUALIST RECOGNIZER", center, 470);
+
+    context.save();
+    context.fillStyle = "rgba(2, 16, 6, 0.92)";
+    context.strokeStyle = "rgba(31, 255, 43, 0.5)";
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(center, 625, 106, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+    context.fillStyle = "#1fff2b";
+    context.font = "900 88px Arial, sans-serif";
+    context.fillText(firstInitial(state.viewerUsername || displayName), center, 655);
+    context.restore();
+
+    context.fillStyle = "#f2f8ef";
+    context.font = "900 58px Arial, sans-serif";
+    drawCenteredText(context, displayName, center, 800, 880, 68);
+
+    context.fillStyle = "#1fff2b";
+    context.font = "900 34px Arial, sans-serif";
+    context.fillText(username, center, 905);
+
+    context.fillStyle = "rgba(9, 31, 15, 0.9)";
+    context.strokeStyle = "rgba(31, 255, 43, 0.35)";
+    context.lineWidth = 2;
+    context.roundRect(180, 1010, 380, 170, 18);
+    context.roundRect(640, 1010, 380, 170, 18);
+    context.fill();
+    context.stroke();
+
+    context.fillStyle = "#1fff2b";
+    context.font = "900 48px Arial, sans-serif";
+    context.fillText(`${completed}/${total}`, 370, 1085);
+    context.fillText(state.batchSubmitted ? "On-chain" : "Ready", 830, 1085);
+
+    context.fillStyle = "#b9cbbd";
+    context.font = "800 24px Arial, sans-serif";
+    context.fillText("Members checked", 370, 1132);
+    context.fillText("Batch submit", 830, 1132);
+
+    context.fillStyle = "#b9cbbd";
+    context.font = "800 24px Arial, sans-serif";
+    context.fillText("Made by rizan - Dedicated for Ritual", center, 1320);
+
+    const link = document.createElement("a");
+    link.download = `indonesian-ritualist-recognizer-${normalizeUsername(state.viewerUsername) || "result"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   }
 
   function updateGateVisibility() {
@@ -1098,6 +1234,7 @@
     });
     elements.previousProfile.addEventListener("click", () => moveProfile(-1));
     elements.nextProfile.addEventListener("click", () => moveProfile(1));
+    elements.downloadResult.addEventListener("click", downloadCompletionImage);
     elements.refreshLeaderboard.addEventListener("click", refreshLeaderboard);
     elements.submitBatchAnswers.addEventListener("click", submitBatchAnswers);
     elements.voteKnow.addEventListener("click", () => submitAnswer(true));

@@ -703,15 +703,16 @@ input:focus {
 }
 
 .completion-submit,
-.completion-share {
+.completion-download {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 164px;
+  min-width: 240px;
   margin: 2px auto 12px;
 }
 
-.completion-submit[disabled] {
+.completion-submit[disabled],
+.completion-download[disabled] {
   cursor: not-allowed;
   filter: grayscale(0.7);
   opacity: 0.68;
