@@ -83,10 +83,13 @@
     chainId: "",
     completedProfileIds: new Set(),
     onchainAnsweredProfileIds: new Set(),
+    metaMaskSdk: null,
     provider: null,
     signer: null,
     viewerProfile: null,
     viewerProfileRequestId: 0,
+    walletEventsProvider: null,
+    walletProvider: null,
     viewerUsername: ""
   };
 
@@ -143,23 +146,76 @@
   }
 
   function hasWalletProvider() {
-    return Boolean(window.ethereum?.request);
+    return Boolean(walletProvider());
   }
 
   function isMobileDevice() {
     return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.matchMedia("(pointer: coarse)").matches;
   }
 
-  function mobileWalletUrl() {
-    const dappUrl = window.location.href.replace(/^https?:\/\//, "");
-    return `https://metamask.app.link/dapp/${dappUrl}`;
+  function walletProvider() {
+    if (state.walletProvider?.request) {
+      return state.walletProvider;
+    }
+
+    if (window.ethereum?.request) {
+      return window.ethereum;
+    }
+
+    return null;
   }
 
-  function openMobileWallet() {
-    const url = mobileWalletUrl();
-    setWalletHint("Opening this page inside MetaMask mobile. Connect again there.");
-    setStatus("Opening this page inside MetaMask mobile. Connect again there.");
-    window.location.href = url;
+  function attachWalletEvents(provider) {
+    if (!provider?.on || state.walletEventsProvider === provider) {
+      return;
+    }
+
+    provider.on("accountsChanged", (accounts) => {
+      if (!accounts.length) {
+        disconnectWallet();
+        return;
+      }
+
+      window.location.reload();
+    });
+
+    provider.on("chainChanged", (chainId) => {
+      state.chainId = chainId;
+      window.location.reload();
+    });
+
+    state.walletEventsProvider = provider;
+  }
+
+  async function getConnectProvider() {
+    const injectedProvider = walletProvider();
+    if (injectedProvider) {
+      attachWalletEvents(injectedProvider);
+      return injectedProvider;
+    }
+
+    const MetaMaskSDK = window.RIRMetaMaskSDK?.default || window.RIRMetaMaskSDK;
+    if (!MetaMaskSDK) {
+      throw new Error("MetaMask connection bridge did not load. Refresh and try again.");
+    }
+
+    state.metaMaskSdk =
+      state.metaMaskSdk ||
+      new MetaMaskSDK({
+        checkInstallationImmediately: false,
+        dappMetadata: {
+          name: "Indonesian Ritualist Recognizer",
+          url: window.location.href
+        },
+        logging: {
+          developerMode: false
+        },
+        preferDesktop: false
+      });
+
+    state.walletProvider = state.metaMaskSdk.getProvider();
+    attachWalletEvents(state.walletProvider);
+    return state.walletProvider;
   }
 
   function setUsernameLoading(isLoading) {
@@ -188,22 +244,24 @@
   }
 
   async function readChainId() {
-    if (!window.ethereum?.request) {
+    const provider = walletProvider();
+    if (!provider?.request) {
       state.chainId = "";
       return "";
     }
 
-    state.chainId = await window.ethereum.request({ method: "eth_chainId" });
+    state.chainId = await provider.request({ method: "eth_chainId" });
     return state.chainId;
   }
 
   async function switchToRitualChain() {
-    if (!window.ethereum?.request) {
+    const provider = walletProvider();
+    if (!provider?.request) {
       throw new Error("No wallet found. Install MetaMask or another EVM wallet.");
     }
 
     try {
-      await window.ethereum.request({
+      await provider.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: ritualChain.chainId }]
       });
@@ -212,7 +270,7 @@
         throw error;
       }
 
-      await window.ethereum.request({
+      await provider.request({
         method: "wallet_addEthereumChain",
         params: [ritualChain]
       });
@@ -227,16 +285,16 @@
   function updateWalletControls() {
     if (!state.account) {
       const needsWalletBrowser = isMobileDevice() && !hasWalletProvider();
-      const label = needsWalletBrowser ? "Open in Wallet App" : "Connect Wallet";
+      const label = needsWalletBrowser ? "Connect MetaMask" : "Connect Wallet";
 
       elements.connectWallet.textContent = label;
       elements.connectWallet.title = needsWalletBrowser
-        ? "Open this dApp inside MetaMask mobile to connect."
+        ? "Connect through MetaMask mobile and return here."
         : "Connect wallet.";
       elements.setupConnectWallet.textContent = label;
       setWalletHint(
         needsWalletBrowser
-          ? "Mobile detected. Open this page inside MetaMask mobile, then connect wallet."
+          ? "Mobile detected. MetaMask will open for approval, then return here."
           : "Connect an EVM wallet to submit on-chain answers."
       );
       return;
@@ -419,13 +477,13 @@
     }
   }
 
-  async function requestWalletSelection() {
-    if (!window.ethereum?.request) {
+  async function requestWalletSelection(provider) {
+    if (!provider?.request) {
       return;
     }
 
     try {
-      await window.ethereum.request({
+      await provider.request({
         method: "wallet_requestPermissions",
         params: [{ eth_accounts: {} }]
       });
@@ -726,31 +784,26 @@
 
   async function connectWallet() {
     try {
-      if (!hasWalletProvider()) {
-        if (isMobileDevice()) {
-          openMobileWallet();
-          return;
-        }
-
-        setWalletHint("No wallet found. Install MetaMask or another EVM wallet.");
-        setStatus("No wallet found. Install MetaMask or another EVM wallet.");
-        return;
-      }
-
       if (!window.ethers) {
         setStatus("Ethers did not load. Check your internet connection.");
         return;
       }
 
-      await requestWalletSelection();
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const ethereumProvider = await getConnectProvider();
+      setWalletHint(
+        isMobileDevice()
+          ? "MetaMask may open for approval. Confirm there, then return here."
+          : "Confirm the wallet connection request."
+      );
+      await requestWalletSelection(ethereumProvider);
+      await ethereumProvider.request({ method: "eth_requestAccounts", params: [] });
       await readChainId();
       if (!isRitualChain()) {
         setStatus("Switching wallet to Ritual Chain...");
         await switchToRitualChain();
       }
 
-      state.provider = new ethers.BrowserProvider(window.ethereum);
+      state.provider = new ethers.BrowserProvider(ethereumProvider);
       state.signer = await state.provider.getSigner();
       state.account = await state.signer.getAddress();
 
@@ -769,17 +822,19 @@
   }
 
   async function restoreConnectedWallet() {
-    if (!window.ethereum || !window.ethers) {
+    const ethereumProvider = walletProvider();
+    if (!ethereumProvider || !window.ethers) {
       return;
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      attachWalletEvents(ethereumProvider);
+      const accounts = await ethereumProvider.request({ method: "eth_accounts" });
       if (!accounts.length) {
         return;
       }
 
-      state.provider = new ethers.BrowserProvider(window.ethereum);
+      state.provider = new ethers.BrowserProvider(ethereumProvider);
       state.signer = await state.provider.getSigner();
       state.account = await state.signer.getAddress();
       await readChainId();
@@ -796,7 +851,8 @@
     try {
       setStatus("Switching wallet to Ritual Chain...");
       await switchToRitualChain();
-      state.provider = new ethers.BrowserProvider(window.ethereum);
+      const ethereumProvider = walletProvider();
+      state.provider = new ethers.BrowserProvider(ethereumProvider);
       state.signer = await state.provider.getSigner();
       state.account = await state.signer.getAddress();
       updateWalletControls();
@@ -815,9 +871,10 @@
   }
 
   async function disconnectWallet() {
-    if (window.ethereum?.request) {
+    const provider = walletProvider();
+    if (provider?.request) {
       try {
-        await window.ethereum.request({
+        await provider.request({
           method: "wallet_revokePermissions",
           params: [{ eth_accounts: {} }]
         });
@@ -830,6 +887,8 @@
     state.chainId = "";
     state.provider = null;
     state.signer = null;
+    state.walletProvider = null;
+    state.metaMaskSdk = null;
     updateWalletControls();
     loadCompleted();
     updateProgress();
@@ -946,20 +1005,7 @@
     elements.voteKnow.addEventListener("click", () => submitAnswer(true));
     elements.voteDoNotKnow.addEventListener("click", () => submitAnswer(false));
 
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", (accounts) => {
-        if (!accounts.length) {
-          disconnectWallet();
-          return;
-        }
-
-        window.location.reload();
-      });
-      window.ethereum.on("chainChanged", (chainId) => {
-        state.chainId = chainId;
-        window.location.reload();
-      });
-    }
+    attachWalletEvents(walletProvider());
   }
 
   async function init() {

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:sdk": "esbuild ./scripts/metamask-sdk-entry.js --bundle --format=iife --global-name=RIRMetaMaskSDKBundle --platform=browser --outfile=app/vendor/metamask-sdk.bundle.js --log-level=warning",
     "dev": "python -m http.server 5173 --bind 127.0.0.1 --directory app",
     "build:seed": "node scripts/build-contract-seed.mjs",
     "cache:profiles": "node scripts/cache-profiles.mjs",
@@ -11,5 +12,9 @@
     "cache:profiles:fast": "node scripts/cache-profiles.mjs --skip-proxy",
     "cache:names": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$env:CACHE_PROFILE_TIMEOUT_MS='30000'; $env:CACHE_PROFILE_CONCURRENCY='2'; npm run cache:profiles\"",
     "set:contract": "node scripts/set-contract-address.mjs"
+  },
+  "devDependencies": {
+    "@metamask/sdk": "^0.33.0",
+    "esbuild": "^0.25.5"
   }
 }
