@@ -71,6 +71,7 @@
     viewerUsername: document.getElementById("viewerUsername"),
     viewerUsernameInput: document.getElementById("viewerUsernameInput"),
     walletGate: document.getElementById("walletGate"),
+    walletGateHint: document.getElementById("walletGateHint"),
     voteDoNotKnow: document.getElementById("voteDoNotKnow"),
     voteKnow: document.getElementById("voteKnow"),
     xLink: document.getElementById("xLink")
@@ -81,6 +82,7 @@
     activeIndex: 0,
     chainId: "",
     completedProfileIds: new Set(),
+    onchainAnsweredProfileIds: new Set(),
     provider: null,
     signer: null,
     viewerProfile: null,
@@ -110,8 +112,19 @@
     localStorage.setItem(completedStorageKey(), JSON.stringify([...state.completedProfileIds]));
   }
 
+  function isProfileAnswered(profile) {
+    return Boolean(
+      profile &&
+        (state.completedProfileIds.has(profile.profileId) || state.onchainAnsweredProfileIds.has(profile.profileId))
+    );
+  }
+
   function setStatus(message) {
     elements.statusLine.textContent = message;
+  }
+
+  function setWalletHint(message) {
+    elements.walletGateHint.textContent = message;
   }
 
   function setStatusLink(message, href, label) {
@@ -127,6 +140,26 @@
     link.rel = "noreferrer";
     link.textContent = label;
     elements.statusLine.append(link);
+  }
+
+  function hasWalletProvider() {
+    return Boolean(window.ethereum?.request);
+  }
+
+  function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.matchMedia("(pointer: coarse)").matches;
+  }
+
+  function mobileWalletUrl() {
+    const dappUrl = window.location.href.replace(/^https?:\/\//, "");
+    return `https://metamask.app.link/dapp/${dappUrl}`;
+  }
+
+  function openMobileWallet() {
+    const url = mobileWalletUrl();
+    setWalletHint("Opening this page inside MetaMask mobile. Connect again there.");
+    setStatus("Opening this page inside MetaMask mobile. Connect again there.");
+    window.location.href = url;
   }
 
   function setUsernameLoading(isLoading) {
@@ -193,9 +226,19 @@
 
   function updateWalletControls() {
     if (!state.account) {
-      elements.connectWallet.textContent = "Connect Wallet";
-      elements.connectWallet.removeAttribute("title");
-      elements.setupConnectWallet.textContent = "Connect Wallet";
+      const needsWalletBrowser = isMobileDevice() && !hasWalletProvider();
+      const label = needsWalletBrowser ? "Open in Wallet App" : "Connect Wallet";
+
+      elements.connectWallet.textContent = label;
+      elements.connectWallet.title = needsWalletBrowser
+        ? "Open this dApp inside MetaMask mobile to connect."
+        : "Connect wallet.";
+      elements.setupConnectWallet.textContent = label;
+      setWalletHint(
+        needsWalletBrowser
+          ? "Mobile detected. Open this page inside MetaMask mobile, then connect wallet."
+          : "Connect an EVM wallet to submit on-chain answers."
+      );
       return;
     }
 
@@ -203,12 +246,14 @@
       elements.connectWallet.textContent = "Switch to Ritual";
       elements.connectWallet.title = `Connected: ${state.account}. Switch network to Ritual Chain.`;
       elements.setupConnectWallet.textContent = "Switch to Ritual";
+      setWalletHint("Switch your wallet network to Ritual Chain to continue.");
       return;
     }
 
     elements.connectWallet.textContent = "Disconnect";
     elements.connectWallet.title = `Connected: ${state.account}. Click to disconnect.`;
     elements.setupConnectWallet.textContent = shortenAddress(state.account);
+    setWalletHint("Wallet connected. You can start recognizing members.");
   }
 
   function saveSettings() {
@@ -456,7 +501,7 @@
 
   function updateVoteButtons() {
     const currentProfile = profiles[state.activeIndex];
-    const alreadyAnswered = currentProfile && state.completedProfileIds.has(currentProfile.profileId);
+    const alreadyAnswered = isProfileAnswered(currentProfile);
     const ready = Boolean(state.viewerUsername && state.account && isRitualChain() && isValidContractAddress());
     const disabled = !ready || alreadyAnswered;
 
@@ -557,9 +602,8 @@
       const contract = currentContract(true);
       const answer = await contract.getAnswer(BigInt(profile.profileId), state.account);
       if (Number(answer) !== 0) {
-        state.completedProfileIds.add(profile.profileId);
-        saveCompleted();
-        updateProgress();
+        state.onchainAnsweredProfileIds.add(profile.profileId);
+        updateVoteButtons();
       }
     } catch {
       // The status area is reserved for user-facing action failures.
@@ -669,7 +713,7 @@
     const total = profiles.length;
     for (let offset = 1; offset <= total; offset += 1) {
       const nextIndex = (state.activeIndex + offset) % total;
-      if (!state.completedProfileIds.has(profiles[nextIndex].profileId)) {
+      if (!isProfileAnswered(profiles[nextIndex])) {
         state.activeIndex = nextIndex;
         saveSettings();
         renderProfile();
@@ -682,7 +726,13 @@
 
   async function connectWallet() {
     try {
-      if (!window.ethereum) {
+      if (!hasWalletProvider()) {
+        if (isMobileDevice()) {
+          openMobileWallet();
+          return;
+        }
+
+        setWalletHint("No wallet found. Install MetaMask or another EVM wallet.");
         setStatus("No wallet found. Install MetaMask or another EVM wallet.");
         return;
       }
