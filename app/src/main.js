@@ -530,20 +530,24 @@
       return;
     }
 
-    // Injected provider path: send chain switch directly to the wallet.
+    // Injected provider path: force-add + switch in one step.
+    // wallet_addEthereumChain adds Ritual Chain if not yet in wallet AND
+    // switches to it — no separate switch call needed in the happy path.
+    // Falls back to wallet_switchEthereumChain if add is rejected or fails.
     try {
-      await provider.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: ritualChain.chainId }]
-      });
-    } catch (error) {
-      if (error.code !== 4902) {
-        throw error;
-      }
-
       await provider.request({
         method: "wallet_addEthereumChain",
         params: [ritualChain]
+      });
+    } catch (addError) {
+      // User explicitly rejected (4001) — stop, don't try further.
+      if (addError.code === 4001) {
+        throw addError;
+      }
+      // Chain may already be known but not selected — try a plain switch.
+      await provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: ritualChain.chainId }]
       });
     }
 
