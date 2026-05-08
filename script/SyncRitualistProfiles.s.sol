@@ -37,19 +37,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            4,
-            unicode"johntolxbt",
-            unicode"john (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 4, unicode"johntolxbt", unicode"john (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            5,
-            unicode"orpheuskaze",
-            unicode"orpheuzkaze",
-            unicode"Indonesian Ritual community member."
+            recognizer, 5, unicode"orpheuskaze", unicode"orpheuzkaze", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -61,11 +53,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            7,
-            unicode"rizann67",
-            unicode"rizan (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 7, unicode"rizann67", unicode"rizan (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -85,27 +73,15 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            10,
-            unicode"basss_eth",
-            unicode"Babasss (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 10, unicode"basss_eth", unicode"Babasss (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            11,
-            unicode"jen_bobz",
-            unicode"Badebest (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 11, unicode"jen_bobz", unicode"Badebest (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            12,
-            unicode"batagor",
-            unicode"Batagor (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 12, unicode"batagor", unicode"Batagor (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -117,19 +93,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            14,
-            unicode"Jonathanhnd11",
-            unicode"Jonathan",
-            unicode"Indonesian Ritual community member."
+            recognizer, 14, unicode"Jonathanhnd11", unicode"Jonathan", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            15,
-            unicode"Leckxy_id",
-            unicode"Lecxky (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 15, unicode"Leckxy_id", unicode"Lecxky (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -141,36 +109,16 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            17,
-            unicode"0xhahawe",
-            unicode"Hahawe (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 17, unicode"0xhahawe", unicode"Hahawe (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            18,
-            unicode"0xkaybu",
-            unicode"Kaybu",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 18, unicode"0xkaybu", unicode"Kaybu", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            19,
-            unicode"mexyy877",
-            unicode"Mexyy (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 19, unicode"mexyy877", unicode"Mexyy (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            20,
-            unicode"hazelnty_",
-            unicode"hazel",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 20, unicode"hazelnty_", unicode"hazel", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -181,11 +129,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            22,
-            unicode"NanangN27",
-            unicode"N G (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 22, unicode"NanangN27", unicode"N G (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -205,11 +149,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            25,
-            unicode"NineMay_ID",
-            unicode"Raka (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 25, unicode"NineMay_ID", unicode"Raka (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -220,21 +160,9 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            27,
-            unicode"0xWnanta",
-            unicode"Wnanta",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 27, unicode"0xWnanta", unicode"Wnanta", unicode"Indonesian Ritual community member.");
 
-        _syncProfile(
-            recognizer,
-            28,
-            unicode"Wyriium",
-            unicode"Wyrium",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 28, unicode"Wyriium", unicode"Wyrium", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -244,28 +172,12 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            30,
-            unicode"nftzella",
-            unicode"ZELLA⨀",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 30, unicode"nftzella", unicode"ZELLA⨀", unicode"Indonesian Ritual community member.");
+
+        _syncProfile(recognizer, 31, unicode"yourinuu", unicode"yourinuu", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            31,
-            unicode"yourinuu",
-            unicode"yourinuu",
-            unicode"Indonesian Ritual community member."
-        );
-
-        _syncProfile(
-            recognizer,
-            32,
-            unicode"0xyuura",
-            unicode"Yuura (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 32, unicode"0xyuura", unicode"Yuura (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -284,13 +196,7 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            35,
-            unicode"0x_kippo",
-            unicode"KippoXBT",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 35, unicode"0x_kippo", unicode"KippoXBT", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -301,35 +207,17 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            37,
-            unicode"0xtequilaa",
-            unicode"Tequila",
-            unicode"Indonesian Ritual community member."
+            recognizer, 37, unicode"0xtequilaa", unicode"Tequila", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            38,
-            unicode"0x_vibevortex",
-            unicode"VibeVortex",
-            unicode"Indonesian Ritual community member."
+            recognizer, 38, unicode"0x_vibevortex", unicode"VibeVortex", unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            39,
-            unicode"Dndxtzy",
-            unicode"Levy",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 39, unicode"Dndxtzy", unicode"Levy", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            40,
-            unicode"saddamovic",
-            unicode"Saddamovic",
-            unicode"Indonesian Ritual community member."
+            recognizer, 40, unicode"saddamovic", unicode"Saddamovic", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -340,20 +228,10 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            42,
-            unicode"KYY_NFT_",
-            unicode"KYY",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 42, unicode"KYY_NFT_", unicode"KYY", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            43,
-            unicode"Oscarfortunes",
-            unicode"Oscar",
-            unicode"Indonesian Ritual community member."
+            recognizer, 43, unicode"Oscarfortunes", unicode"Oscar", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -373,11 +251,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            46,
-            unicode"ch4laa",
-            unicode"chala (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 46, unicode"ch4laa", unicode"chala (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -389,27 +263,15 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            48,
-            unicode"Ox6ce4",
-            unicode"0xrumora ❖",
-            unicode"Indonesian Ritual community member."
+            recognizer, 48, unicode"Ox6ce4", unicode"0xrumora ❖", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            49,
-            unicode"flylucifer666",
-            unicode"flylucifer",
-            unicode"Indonesian Ritual community member."
+            recognizer, 49, unicode"flylucifer666", unicode"flylucifer", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            50,
-            unicode"Vans_1611",
-            unicode"Vans (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 50, unicode"Vans_1611", unicode"Vans (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -421,43 +283,21 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            52,
-            unicode"0ximbalance",
-            unicode"piktawr",
-            unicode"Indonesian Ritual community member."
+            recognizer, 52, unicode"0ximbalance", unicode"piktawr", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            53,
-            unicode"Zegnaeth",
-            unicode"Zegna (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 53, unicode"Zegnaeth", unicode"Zegna (❖,❖)", unicode"Indonesian Ritual community member."
+        );
+
+        _syncProfile(recognizer, 54, unicode"0xTremolo", unicode"Tremolo", unicode"Indonesian Ritual community member.");
+
+        _syncProfile(
+            recognizer, 55, unicode"whuanjg", unicode"whuan (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            54,
-            unicode"0xTremolo",
-            unicode"Tremolo",
-            unicode"Indonesian Ritual community member."
-        );
-
-        _syncProfile(
-            recognizer,
-            55,
-            unicode"whuanjg",
-            unicode"whuan (❖,❖)",
-            unicode"Indonesian Ritual community member."
-        );
-
-        _syncProfile(
-            recognizer,
-            56,
-            unicode"Oxhiizaaa",
-            unicode"Konad(❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 56, unicode"Oxhiizaaa", unicode"Konad(❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -485,19 +325,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            60,
-            unicode"OyengEth",
-            unicode"Oyeng.eth",
-            unicode"Indonesian Ritual community member."
+            recognizer, 60, unicode"OyengEth", unicode"Oyeng.eth", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            61,
-            unicode"rzstwnn_",
-            unicode"0xRz (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 61, unicode"rzstwnn_", unicode"0xRz (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -509,35 +341,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            63,
-            unicode"Js_Liim",
-            unicode"JsLiim (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 63, unicode"Js_Liim", unicode"JsLiim (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            64,
-            unicode"drayvenweb3",
-            unicode"Drayven",
-            unicode"Indonesian Ritual community member."
+            recognizer, 64, unicode"drayvenweb3", unicode"Drayven", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            65,
-            unicode"yetecevm",
-            unicode"yetece (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 65, unicode"yetecevm", unicode"yetece (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            66,
-            unicode"qrra_1",
-            unicode"qyiiraaa (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 66, unicode"qrra_1", unicode"qyiiraaa (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -549,11 +365,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            68,
-            unicode"kenann_szn",
-            unicode"Kenannn!",
-            unicode"Indonesian Ritual community member."
+            recognizer, 68, unicode"kenann_szn", unicode"Kenannn!", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -580,13 +392,7 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            72,
-            unicode"justKjaa",
-            unicode"kja",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 72, unicode"justKjaa", unicode"kja", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -597,36 +403,16 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            74,
-            unicode"0xjugger",
-            unicode"Juggernaut ❖",
-            unicode"Indonesian Ritual community member."
+            recognizer, 74, unicode"0xjugger", unicode"Juggernaut ❖", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            75,
-            unicode"0xfirless",
-            unicode"firless (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 75, unicode"0xfirless", unicode"firless (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            76,
-            unicode"Rizkyy_028",
-            unicode"Rizzz",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 76, unicode"Rizkyy_028", unicode"Rizzz", unicode"Indonesian Ritual community member.");
 
-        _syncProfile(
-            recognizer,
-            77,
-            unicode"Giselle20_",
-            unicode"babyD",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 77, unicode"Giselle20_", unicode"babyD", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -637,11 +423,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            79,
-            unicode"takingford",
-            unicode"Taking Tom",
-            unicode"Indonesian Ritual community member."
+            recognizer, 79, unicode"takingford", unicode"Taking Tom", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -652,20 +434,10 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            81,
-            unicode"OnatEth",
-            unicode"Onat.eth",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 81, unicode"OnatEth", unicode"Onat.eth", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            82,
-            unicode"callmehannnnnnn",
-            unicode"callmehannn",
-            unicode"Indonesian Ritual community member."
+            recognizer, 82, unicode"callmehannnnnnn", unicode"callmehannn", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -677,19 +449,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            84,
-            unicode"biliebed_",
-            unicode"Biliebed",
-            unicode"Indonesian Ritual community member."
+            recognizer, 84, unicode"biliebed_", unicode"Biliebed", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            85,
-            unicode"anton_yoww",
-            unicode"THONNN(❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 85, unicode"anton_yoww", unicode"THONNN(❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -700,37 +464,15 @@ abstract contract RitualistProfileSync is Script {
             unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            87,
-            unicode"travisqk",
-            unicode"travis",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 87, unicode"travisqk", unicode"travis", unicode"Indonesian Ritual community member.");
+
+        _syncProfile(recognizer, 88, unicode"shinjiihhh", unicode"Shin", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
-            recognizer,
-            88,
-            unicode"shinjiihhh",
-            unicode"Shin",
-            unicode"Indonesian Ritual community member."
+            recognizer, 89, unicode"Shanixeuu", unicode"Shanix (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
-        _syncProfile(
-            recognizer,
-            89,
-            unicode"Shanixeuu",
-            unicode"Shanix (❖,❖)",
-            unicode"Indonesian Ritual community member."
-        );
-
-        _syncProfile(
-            recognizer,
-            90,
-            unicode"Tinushi71",
-            unicode"pengon",
-            unicode"Indonesian Ritual community member."
-        );
+        _syncProfile(recognizer, 90, unicode"Tinushi71", unicode"pengon", unicode"Indonesian Ritual community member.");
 
         _syncProfile(
             recognizer,
@@ -741,19 +483,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            92,
-            unicode"lexyour1_",
-            unicode"Suo (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 92, unicode"lexyour1_", unicode"Suo (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            93,
-            unicode"nomnomkiko",
-            unicode"Kai (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 93, unicode"nomnomkiko", unicode"Kai (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -765,11 +499,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            95,
-            unicode"bramexyz",
-            unicode"Habe (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 95, unicode"bramexyz", unicode"Habe (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -789,19 +519,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _syncProfile(
-            recognizer,
-            98,
-            unicode"Shee178",
-            unicode"0shee (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 98, unicode"Shee178", unicode"0shee (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
-            recognizer,
-            99,
-            unicode"Shromeey",
-            unicode"MeeyVerse",
-            unicode"Indonesian Ritual community member."
+            recognizer, 99, unicode"Shromeey", unicode"MeeyVerse", unicode"Indonesian Ritual community member."
         );
 
         _syncProfile(
@@ -839,19 +561,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            4,
-            unicode"johntolxbt",
-            unicode"john (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 4, unicode"johntolxbt", unicode"john (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            5,
-            unicode"orpheuskaze",
-            unicode"orpheuzkaze",
-            unicode"Indonesian Ritual community member."
+            recognizer, 5, unicode"orpheuskaze", unicode"orpheuzkaze", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -863,11 +577,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            7,
-            unicode"rizann67",
-            unicode"rizan (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 7, unicode"rizann67", unicode"rizan (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -887,27 +597,15 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            10,
-            unicode"basss_eth",
-            unicode"Babasss (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 10, unicode"basss_eth", unicode"Babasss (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            11,
-            unicode"jen_bobz",
-            unicode"Badebest (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 11, unicode"jen_bobz", unicode"Badebest (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            12,
-            unicode"batagor",
-            unicode"Batagor (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 12, unicode"batagor", unicode"Batagor (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -919,19 +617,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            14,
-            unicode"Jonathanhnd11",
-            unicode"Jonathan",
-            unicode"Indonesian Ritual community member."
+            recognizer, 14, unicode"Jonathanhnd11", unicode"Jonathan", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            15,
-            unicode"Leckxy_id",
-            unicode"Lecxky (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 15, unicode"Leckxy_id", unicode"Lecxky (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -943,35 +633,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            17,
-            unicode"0xhahawe",
-            unicode"Hahawe (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 17, unicode"0xhahawe", unicode"Hahawe (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            18,
-            unicode"0xkaybu",
-            unicode"Kaybu",
-            unicode"Indonesian Ritual community member."
+            recognizer, 18, unicode"0xkaybu", unicode"Kaybu", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            19,
-            unicode"mexyy877",
-            unicode"Mexyy (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 19, unicode"mexyy877", unicode"Mexyy (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            20,
-            unicode"hazelnty_",
-            unicode"hazel",
-            unicode"Indonesian Ritual community member."
+            recognizer, 20, unicode"hazelnty_", unicode"hazel", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -983,11 +657,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            22,
-            unicode"NanangN27",
-            unicode"N G (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 22, unicode"NanangN27", unicode"N G (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1007,11 +677,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            25,
-            unicode"NineMay_ID",
-            unicode"Raka (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 25, unicode"NineMay_ID", unicode"Raka (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1023,19 +689,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            27,
-            unicode"0xWnanta",
-            unicode"Wnanta",
-            unicode"Indonesian Ritual community member."
+            recognizer, 27, unicode"0xWnanta", unicode"Wnanta", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            28,
-            unicode"Wyriium",
-            unicode"Wyrium",
-            unicode"Indonesian Ritual community member."
+            recognizer, 28, unicode"Wyriium", unicode"Wyrium", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1047,27 +705,15 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            30,
-            unicode"nftzella",
-            unicode"ZELLA⨀",
-            unicode"Indonesian Ritual community member."
+            recognizer, 30, unicode"nftzella", unicode"ZELLA⨀", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            31,
-            unicode"yourinuu",
-            unicode"yourinuu",
-            unicode"Indonesian Ritual community member."
+            recognizer, 31, unicode"yourinuu", unicode"yourinuu", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            32,
-            unicode"0xyuura",
-            unicode"Yuura (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 32, unicode"0xyuura", unicode"Yuura (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1087,11 +733,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            35,
-            unicode"0x_kippo",
-            unicode"KippoXBT",
-            unicode"Indonesian Ritual community member."
+            recognizer, 35, unicode"0x_kippo", unicode"KippoXBT", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1103,35 +745,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            37,
-            unicode"0xtequilaa",
-            unicode"Tequila",
-            unicode"Indonesian Ritual community member."
+            recognizer, 37, unicode"0xtequilaa", unicode"Tequila", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            38,
-            unicode"0x_vibevortex",
-            unicode"VibeVortex",
-            unicode"Indonesian Ritual community member."
+            recognizer, 38, unicode"0x_vibevortex", unicode"VibeVortex", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            39,
-            unicode"Dndxtzy",
-            unicode"Levy",
-            unicode"Indonesian Ritual community member."
+            recognizer, 39, unicode"Dndxtzy", unicode"Levy", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            40,
-            unicode"saddamovic",
-            unicode"Saddamovic",
-            unicode"Indonesian Ritual community member."
+            recognizer, 40, unicode"saddamovic", unicode"Saddamovic", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1143,19 +769,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            42,
-            unicode"KYY_NFT_",
-            unicode"KYY",
-            unicode"Indonesian Ritual community member."
+            recognizer, 42, unicode"KYY_NFT_", unicode"KYY", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            43,
-            unicode"Oscarfortunes",
-            unicode"Oscar",
-            unicode"Indonesian Ritual community member."
+            recognizer, 43, unicode"Oscarfortunes", unicode"Oscar", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1175,11 +793,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            46,
-            unicode"ch4laa",
-            unicode"chala (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 46, unicode"ch4laa", unicode"chala (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1191,27 +805,15 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            48,
-            unicode"Ox6ce4",
-            unicode"0xrumora ❖",
-            unicode"Indonesian Ritual community member."
+            recognizer, 48, unicode"Ox6ce4", unicode"0xrumora ❖", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            49,
-            unicode"flylucifer666",
-            unicode"flylucifer",
-            unicode"Indonesian Ritual community member."
+            recognizer, 49, unicode"flylucifer666", unicode"flylucifer", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            50,
-            unicode"Vans_1611",
-            unicode"Vans (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 50, unicode"Vans_1611", unicode"Vans (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1223,43 +825,23 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            52,
-            unicode"0ximbalance",
-            unicode"piktawr",
-            unicode"Indonesian Ritual community member."
+            recognizer, 52, unicode"0ximbalance", unicode"piktawr", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            53,
-            unicode"Zegnaeth",
-            unicode"Zegna (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 53, unicode"Zegnaeth", unicode"Zegna (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            54,
-            unicode"0xTremolo",
-            unicode"Tremolo",
-            unicode"Indonesian Ritual community member."
+            recognizer, 54, unicode"0xTremolo", unicode"Tremolo", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            55,
-            unicode"whuanjg",
-            unicode"whuan (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 55, unicode"whuanjg", unicode"whuan (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            56,
-            unicode"Oxhiizaaa",
-            unicode"Konad(❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 56, unicode"Oxhiizaaa", unicode"Konad(❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1287,19 +869,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            60,
-            unicode"OyengEth",
-            unicode"Oyeng.eth",
-            unicode"Indonesian Ritual community member."
+            recognizer, 60, unicode"OyengEth", unicode"Oyeng.eth", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            61,
-            unicode"rzstwnn_",
-            unicode"0xRz (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 61, unicode"rzstwnn_", unicode"0xRz (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1311,35 +885,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            63,
-            unicode"Js_Liim",
-            unicode"JsLiim (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 63, unicode"Js_Liim", unicode"JsLiim (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            64,
-            unicode"drayvenweb3",
-            unicode"Drayven",
-            unicode"Indonesian Ritual community member."
+            recognizer, 64, unicode"drayvenweb3", unicode"Drayven", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            65,
-            unicode"yetecevm",
-            unicode"yetece (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 65, unicode"yetecevm", unicode"yetece (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            66,
-            unicode"qrra_1",
-            unicode"qyiiraaa (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 66, unicode"qrra_1", unicode"qyiiraaa (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1351,11 +909,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            68,
-            unicode"kenann_szn",
-            unicode"Kenannn!",
-            unicode"Indonesian Ritual community member."
+            recognizer, 68, unicode"kenann_szn", unicode"Kenannn!", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1383,11 +937,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            72,
-            unicode"justKjaa",
-            unicode"kja",
-            unicode"Indonesian Ritual community member."
+            recognizer, 72, unicode"justKjaa", unicode"kja", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1399,35 +949,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            74,
-            unicode"0xjugger",
-            unicode"Juggernaut ❖",
-            unicode"Indonesian Ritual community member."
+            recognizer, 74, unicode"0xjugger", unicode"Juggernaut ❖", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            75,
-            unicode"0xfirless",
-            unicode"firless (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 75, unicode"0xfirless", unicode"firless (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            76,
-            unicode"Rizkyy_028",
-            unicode"Rizzz",
-            unicode"Indonesian Ritual community member."
+            recognizer, 76, unicode"Rizkyy_028", unicode"Rizzz", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            77,
-            unicode"Giselle20_",
-            unicode"babyD",
-            unicode"Indonesian Ritual community member."
+            recognizer, 77, unicode"Giselle20_", unicode"babyD", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1439,11 +973,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            79,
-            unicode"takingford",
-            unicode"Taking Tom",
-            unicode"Indonesian Ritual community member."
+            recognizer, 79, unicode"takingford", unicode"Taking Tom", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1455,19 +985,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            81,
-            unicode"OnatEth",
-            unicode"Onat.eth",
-            unicode"Indonesian Ritual community member."
+            recognizer, 81, unicode"OnatEth", unicode"Onat.eth", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            82,
-            unicode"callmehannnnnnn",
-            unicode"callmehannn",
-            unicode"Indonesian Ritual community member."
+            recognizer, 82, unicode"callmehannnnnnn", unicode"callmehannn", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1479,19 +1001,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            84,
-            unicode"biliebed_",
-            unicode"Biliebed",
-            unicode"Indonesian Ritual community member."
+            recognizer, 84, unicode"biliebed_", unicode"Biliebed", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            85,
-            unicode"anton_yoww",
-            unicode"THONNN(❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 85, unicode"anton_yoww", unicode"THONNN(❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1503,35 +1017,19 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            87,
-            unicode"travisqk",
-            unicode"travis",
-            unicode"Indonesian Ritual community member."
+            recognizer, 87, unicode"travisqk", unicode"travis", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            88,
-            unicode"shinjiihhh",
-            unicode"Shin",
-            unicode"Indonesian Ritual community member."
+            recognizer, 88, unicode"shinjiihhh", unicode"Shin", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            89,
-            unicode"Shanixeuu",
-            unicode"Shanix (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 89, unicode"Shanixeuu", unicode"Shanix (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            90,
-            unicode"Tinushi71",
-            unicode"pengon",
-            unicode"Indonesian Ritual community member."
+            recognizer, 90, unicode"Tinushi71", unicode"pengon", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1543,19 +1041,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            92,
-            unicode"lexyour1_",
-            unicode"Suo (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 92, unicode"lexyour1_", unicode"Suo (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            93,
-            unicode"nomnomkiko",
-            unicode"Kai (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 93, unicode"nomnomkiko", unicode"Kai (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1567,11 +1057,7 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            95,
-            unicode"bramexyz",
-            unicode"Habe (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 95, unicode"bramexyz", unicode"Habe (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
@@ -1591,19 +1077,11 @@ abstract contract RitualistProfileSync is Script {
         );
 
         _createProfileIfMissing(
-            recognizer,
-            98,
-            unicode"Shee178",
-            unicode"0shee (❖,❖)",
-            unicode"Indonesian Ritual community member."
+            recognizer, 98, unicode"Shee178", unicode"0shee (❖,❖)", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
-            recognizer,
-            99,
-            unicode"Shromeey",
-            unicode"MeeyVerse",
-            unicode"Indonesian Ritual community member."
+            recognizer, 99, unicode"Shromeey", unicode"MeeyVerse", unicode"Indonesian Ritual community member."
         );
 
         _createProfileIfMissing(
