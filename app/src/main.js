@@ -2,13 +2,16 @@
   const contractAbi = [
     "function answer(uint256 profileId, bool knows)",
     "function answerBatch(uint256[] profileIds, bool[] knows)",
+    "function answerBatchVerified(uint256[] profileIds, bool[] knows, uint256 ttl)",
     "function getProfile(uint256 profileId) view returns (string xUsername, string displayName, string avatarURI, string metadataURI, bytes32 metadataHash, uint256 knowCount, uint256 doNotKnowCount)",
-    "function getAnswer(uint256 profileId, address voter) view returns (uint8)"
+    "function getAnswer(uint256 profileId, address voter) view returns (uint8)",
+    "function httpExecutor() view returns (address)",
+    "function lastVerificationHash(address) view returns (bytes32)"
   ];
 
   const twitterProxyBaseUrl = "https://ritual-twitter-proxy.artelamon.workers.dev/api/twitter";
   const explorerBaseUrl = "https://explorer.ritualfoundation.org";
-  const contractAddress = "0xf8637cf80691caeced1fcaf7b32a281e7dbf7331";
+  const contractAddress = "0xeF71946C7B7B1717d99EFd36D1a3990dc36ba42A";
   const ritualChain = {
     blockExplorerUrls: [explorerBaseUrl],
     chainId: "0x7bb",
@@ -1669,10 +1672,21 @@
       const contract = currentContract(false);
       state.batchSubmitting = true;
       renderCompletion();
-      setStatus("Waiting for one wallet confirmation to submit all answers...");
+      setStatus("Waiting for wallet confirmation (HTTP precompile verification)...");
 
-      const tx = await contract.answerBatch(profileIds, knows);
-      setStatusLink("Batch transaction submitted.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+      let tx;
+      try {
+        const executor = await contract.httpExecutor();
+        if (executor && executor !== "0x0000000000000000000000000000000000000000") {
+          tx = await contract.answerBatchVerified(profileIds, knows, 100, { gasLimit: 5000000 });
+        } else {
+          tx = await contract.answerBatch(profileIds, knows);
+        }
+      } catch (verifiedErr) {
+        console.warn("answerBatchVerified failed, falling back to answerBatch:", verifiedErr);
+        tx = await contract.answerBatch(profileIds, knows);
+      }
+      setStatusLink("Transaction submitted (with Ritual verification).", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
       await tx.wait();
 
       profileIds.forEach((profileId, index) => {

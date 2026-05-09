@@ -1140,7 +1140,7 @@ contract DeployAndSeedRitualistRecognizer is RitualistProfileSync {
 contract SyncRitualistProfiles is RitualistProfileSync {
     function run() external {
         address recognizerAddress = vm.envAddress("RECOGNIZER_ADDRESS");
-        RitualistRecognizer recognizer = RitualistRecognizer(recognizerAddress);
+        RitualistRecognizer recognizer = RitualistRecognizer(payable(recognizerAddress));
 
         vm.startBroadcast();
         _syncProfiles(recognizer);
@@ -1151,7 +1151,7 @@ contract SyncRitualistProfiles is RitualistProfileSync {
 contract ResumeRitualistProfiles is RitualistProfileSync {
     function run() external {
         address recognizerAddress = vm.envAddress("RECOGNIZER_ADDRESS");
-        RitualistRecognizer recognizer = RitualistRecognizer(recognizerAddress);
+        RitualistRecognizer recognizer = RitualistRecognizer(payable(recognizerAddress));
 
         vm.startBroadcast();
         _resumeProfiles(recognizer);
