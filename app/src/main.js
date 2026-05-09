@@ -14,7 +14,6 @@
   const contractAddress = "0x29682b24E056dCE515747047c9ED34a73Be665a8";
   const batchSubmitChunkSize = 20;
   const plainBatchGasLimit = 2000000;
-  const verifiedBatchGasLimit = 2500000;
   const ritualChain = {
     blockExplorerUrls: [explorerBaseUrl],
     chainId: "0x7bb",
@@ -1692,40 +1691,20 @@
       renderCompletion();
       const chunks = chunkBatchEntries(profileIds, knows, batchSubmitChunkSize);
       const confirmedTxs = [];
-      let usedAnyVerification = false;
-
-      const executor = await contract.httpExecutor();
-      const canUseVerification = Boolean(executor && executor !== "0x0000000000000000000000000000000000000000");
-
       for (let index = 0; index < chunks.length; index += 1) {
         const chunk = chunks[index];
         const chunkLabel = chunks.length > 1 ? ` ${index + 1}/${chunks.length}` : "";
-        let tx;
-        let usedVerification = false;
 
         setStatus(`Waiting for wallet confirmation for batch${chunkLabel}...`);
-        try {
-          if (canUseVerification) {
-            tx = await contract.answerBatchVerified(chunk.profileIds, chunk.knows, 100, {
-              gasLimit: verifiedBatchGasLimit
-            });
-            usedVerification = true;
-          } else {
-            tx = await contract.answerBatch(chunk.profileIds, chunk.knows, { gasLimit: plainBatchGasLimit });
-          }
-        } catch (verifiedErr) {
-          console.warn("answerBatchVerified failed, falling back to answerBatch:", verifiedErr);
-          tx = await contract.answerBatch(chunk.profileIds, chunk.knows, { gasLimit: plainBatchGasLimit });
-        }
+        const tx = await contract.answerBatch(chunk.profileIds, chunk.knows, { gasLimit: plainBatchGasLimit });
 
         setStatusLink(
-          usedVerification ? `Batch${chunkLabel} submitted with Ritual verification.` : `Batch${chunkLabel} submitted on-chain.`,
+          `Batch${chunkLabel} submitted on-chain.`,
           `${explorerBaseUrl}/tx/${tx.hash}`,
           "View on explorer"
         );
         await tx.wait();
         confirmedTxs.push(tx.hash);
-        usedAnyVerification = usedAnyVerification || usedVerification;
 
         chunk.profileIds.forEach((profileId, answerIndex) => {
           const normalizedProfileId = profileId.toString();
@@ -1743,7 +1722,7 @@
       await refreshCurrentStats();
       await refreshLeaderboard();
       setStatusLink(
-        usedAnyVerification ? "All answers confirmed on-chain with Ritual verification." : "All answers confirmed on-chain.",
+        "All answers confirmed on-chain.",
         `${explorerBaseUrl}/tx/${confirmedTxs[confirmedTxs.length - 1]}`,
         "View latest transaction"
       );
