@@ -6,23 +6,26 @@ pragma solidity ^0.8.24;
 ///         Uses Ritual HTTP precompile (0x0801) to fetch on-chain block data
 ///         as a TEE-verified timestamp proof when answers are submitted.
 contract RitualistRecognizer {
-
     // ─── Ritual precompile & system contract addresses ────────────────────────
-    address constant HTTP_PRECOMPILE  = address(0x0801);
-    address constant RITUAL_WALLET    = 0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948;
+    address constant HTTP_PRECOMPILE = address(0x0801);
+    address constant RITUAL_WALLET = 0x532F0dF0896F353d8C3DD8cc134e8129DA2a3948;
 
     // ─── Types ─────────────────────────────────────────────────────────────────
-    enum RecognitionAnswer { Unanswered, Know, DoNotKnow }
+    enum RecognitionAnswer {
+        Unanswered,
+        Know,
+        DoNotKnow
+    }
 
     struct Profile {
-        string  xUsername;
-        string  displayName;
-        string  avatarURI;
-        string  metadataURI;
+        string xUsername;
+        string displayName;
+        string avatarURI;
+        string metadataURI;
         bytes32 metadataHash;
         uint256 knowCount;
         uint256 doNotKnowCount;
-        bool    exists;
+        bool exists;
     }
 
     // ─── Storage ───────────────────────────────────────────────────────────────
@@ -32,8 +35,8 @@ contract RitualistRecognizer {
     /// @dev TEE executor address fetched from TEEServiceRegistry; settable by owner.
     address public httpExecutor;
 
-    mapping(uint256 => Profile)                                private profiles;
-    mapping(uint256 => mapping(address => RecognitionAnswer))  private answers;
+    mapping(uint256 => Profile) private profiles;
+    mapping(uint256 => mapping(address => RecognitionAnswer)) private answers;
 
     /// @dev Stores the last HTTP verification response per submitter.
     mapping(address => bytes32) public lastVerificationHash;
@@ -60,11 +63,7 @@ contract RitualistRecognizer {
     event ExecutorUpdated(address indexed newExecutor);
 
     /// @dev Emitted when the HTTP precompile returns a verification response.
-    event VerificationCompleted(
-        address indexed voter,
-        uint256 answersSubmitted,
-        bytes32 responseHash
-    );
+    event VerificationCompleted(address indexed voter, uint256 answersSubmitted, bytes32 responseHash);
 
     // ─── Modifiers ─────────────────────────────────────────────────────────────
     modifier onlyOwner() {
@@ -102,9 +101,7 @@ contract RitualistRecognizer {
 
     /// @notice Deposit RITUAL into RitualWallet to fund HTTP precompile fees.
     function depositForFees() external payable {
-        (bool ok,) = RITUAL_WALLET.call{value: msg.value}(
-            abi.encodeWithSignature("deposit(uint256)", uint256(5000))
-        );
+        (bool ok,) = RITUAL_WALLET.call{value: msg.value}(abi.encodeWithSignature("deposit(uint256)", uint256(5000)));
         require(ok, "RitualWallet deposit failed");
     }
 
@@ -125,14 +122,14 @@ contract RitualistRecognizer {
 
         profileId = nextProfileId++;
         profiles[profileId] = Profile({
-            xUsername:      xUsername,
-            displayName:    displayName,
-            avatarURI:      avatarURI,
-            metadataURI:    metadataURI,
-            metadataHash:   metadataHash,
-            knowCount:      0,
+            xUsername: xUsername,
+            displayName: displayName,
+            avatarURI: avatarURI,
+            metadataURI: metadataURI,
+            metadataHash: metadataHash,
+            knowCount: 0,
             doNotKnowCount: 0,
-            exists:         true
+            exists: true
         });
 
         emit ProfileCreated(profileId, xUsername, displayName, avatarURI, metadataURI, metadataHash);
@@ -150,10 +147,10 @@ contract RitualistRecognizer {
         require(bytes(avatarURI).length > 0, "Missing avatar URI");
 
         Profile storage profile = profiles[profileId];
-        profile.xUsername    = xUsername;
-        profile.displayName  = displayName;
-        profile.avatarURI    = avatarURI;
-        profile.metadataURI  = metadataURI;
+        profile.xUsername = xUsername;
+        profile.displayName = displayName;
+        profile.avatarURI = avatarURI;
+        profile.metadataURI = metadataURI;
         profile.metadataHash = metadataHash;
 
         emit ProfileUpdated(profileId, xUsername, displayName, avatarURI, metadataURI, metadataHash);
@@ -179,11 +176,7 @@ contract RitualistRecognizer {
     ///         and caller's RitualWallet to be funded.
     ///
     ///         This creates TxAsyncCommitment + TxAsyncSettlement on Ritual Chain.
-    function answerBatchVerified(
-        uint256[] calldata profileIds,
-        bool[]    calldata knows,
-        uint256            ttl
-    ) external {
+    function answerBatchVerified(uint256[] calldata profileIds, bool[] calldata knows, uint256 ttl) external {
         require(profileIds.length > 0, "No answers");
         require(profileIds.length == knows.length, "Length mismatch");
         require(httpExecutor != address(0), "HTTP executor not set");
@@ -205,7 +198,7 @@ contract RitualistRecognizer {
         //    and TxAsyncSettlement delivers the result — all visible on the
         //    Ritual explorer.
 
-        string memory rpcUrl  = "https://rpc.ritualfoundation.org";
+        string memory rpcUrl = "https://rpc.ritualfoundation.org";
         string memory rpcBody = '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}';
 
         string[] memory hk = new string[](1);
@@ -214,19 +207,19 @@ contract RitualistRecognizer {
         hv[0] = "application/json";
 
         bytes memory httpInput = abi.encode(
-            httpExecutor,        // executor (from TEEServiceRegistry)
-            new bytes[](0),      // encryptedSecrets (none)
-            ttl,                 // TTL in blocks (1–500)
-            new bytes[](0),      // secretSignatures (none)
-            bytes(""),           // userPublicKey (plaintext response)
-            rpcUrl,              // url
-            uint8(2),            // method: POST
-            hk,                  // headerKeys
-            hv,                  // headerValues
-            bytes(rpcBody),      // body
-            uint256(0),          // dkmsKeyIndex (not using dKMS)
-            uint8(0),            // dkmsKeyFormat
-            false                // piiEnabled
+            httpExecutor, // executor (from TEEServiceRegistry)
+            new bytes[](0), // encryptedSecrets (none)
+            ttl, // TTL in blocks (1–500)
+            new bytes[](0), // secretSignatures (none)
+            bytes(""), // userPublicKey (plaintext response)
+            rpcUrl, // url
+            uint8(2), // method: POST
+            hk, // headerKeys
+            hv, // headerValues
+            bytes(rpcBody), // body
+            uint256(0), // dkmsKeyIndex (not using dKMS)
+            uint8(0), // dkmsKeyFormat
+            false // piiEnabled
         );
 
         (bool ok, bytes memory rawOutput) = HTTP_PRECOMPILE.call(httpInput);
@@ -240,9 +233,7 @@ contract RitualistRecognizer {
         bytes32 responseHash;
         if (actualOutput.length > 0) {
             // Decode HTTP response: (uint16 status, string[] hk, string[] hv, bytes body, string err)
-            (, , , bytes memory body,) = abi.decode(
-                actualOutput, (uint16, string[], string[], bytes, string)
-            );
+            (,,, bytes memory body,) = abi.decode(actualOutput, (uint16, string[], string[], bytes, string));
             responseHash = keccak256(body);
         } else {
             // Simulation path — hash the raw output as placeholder.
@@ -260,18 +251,17 @@ contract RitualistRecognizer {
         view
         profileExists(profileId)
         returns (
-            string  memory xUsername,
-            string  memory displayName,
-            string  memory avatarURI,
-            string  memory metadataURI,
-            bytes32        metadataHash,
-            uint256        knowCount,
-            uint256        doNotKnowCount
+            string memory xUsername,
+            string memory displayName,
+            string memory avatarURI,
+            string memory metadataURI,
+            bytes32 metadataHash,
+            uint256 knowCount,
+            uint256 doNotKnowCount
         )
     {
         Profile storage p = profiles[profileId];
-        return (p.xUsername, p.displayName, p.avatarURI, p.metadataURI,
-                p.metadataHash, p.knowCount, p.doNotKnowCount);
+        return (p.xUsername, p.displayName, p.avatarURI, p.metadataURI, p.metadataHash, p.knowCount, p.doNotKnowCount);
     }
 
     function getAnswer(uint256 profileId, address voter)
@@ -284,14 +274,8 @@ contract RitualistRecognizer {
     }
 
     // ─── Internal ──────────────────────────────────────────────────────────────
-    function _answer(uint256 profileId, bool knows, address voter)
-        internal
-        profileExists(profileId)
-    {
-        require(
-            answers[profileId][voter] == RecognitionAnswer.Unanswered,
-            "Already answered"
-        );
+    function _answer(uint256 profileId, bool knows, address voter) internal profileExists(profileId) {
+        require(answers[profileId][voter] == RecognitionAnswer.Unanswered, "Already answered");
 
         if (knows) {
             profiles[profileId].knowCount += 1;
