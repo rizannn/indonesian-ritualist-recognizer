@@ -12,6 +12,9 @@
   const twitterProxyBaseUrl = "https://ritual-twitter-proxy.artelamon.workers.dev/api/twitter";
   const explorerBaseUrl = "https://explorer.ritualfoundation.org";
   const contractAddress = "0x29682b24E056dCE515747047c9ED34a73Be665a8";
+  const batchSubmitChunkSize = 20;
+  const plainBatchGasLimit = 2000000;
+  const verifiedBatchGasLimit = 2500000;
   const ritualChain = {
     blockExplorerUrls: [explorerBaseUrl],
     chainId: "0x7bb",
@@ -847,6 +850,18 @@
     return { knows, profileIds };
   }
 
+  function chunkBatchEntries(profileIds, knows, size) {
+    const chunks = [];
+    for (let index = 0; index < profileIds.length; index += size) {
+      chunks.push({
+        knows: knows.slice(index, index + size),
+        profileIds: profileIds.slice(index, index + size)
+      });
+    }
+
+    return chunks;
+  }
+
   function recordOnchainAnswer(profile, answer) {
     const normalizedAnswer = Number(answer);
     if (!profile || normalizedAnswer === 0) {
@@ -1664,6 +1679,9 @@
         await connectWallet();
       }
 
+      setStatus("Checking existing on-chain answers...");
+      await syncAllAnswers();
+
       const { knows, profileIds } = batchAnswerEntries();
       if (!profileIds.length) {
         throw new Error("No new answers to submit.");
@@ -1672,45 +1690,62 @@
       const contract = currentContract(false);
       state.batchSubmitting = true;
       renderCompletion();
-      setStatus("Waiting for wallet confirmation (HTTP precompile verification)...");
+      const chunks = chunkBatchEntries(profileIds, knows, batchSubmitChunkSize);
+      const confirmedTxs = [];
+      let usedAnyVerification = false;
 
-      let tx;
-      let usedVerification = false;
-      try {
-        const executor = await contract.httpExecutor();
-        if (executor && executor !== "0x0000000000000000000000000000000000000000") {
-          tx = await contract.answerBatchVerified(profileIds, knows, 100, { gasLimit: 5000000 });
-          usedVerification = true;
-        } else {
-          tx = await contract.answerBatch(profileIds, knows);
+      const executor = await contract.httpExecutor();
+      const canUseVerification = Boolean(executor && executor !== "0x0000000000000000000000000000000000000000");
+
+      for (let index = 0; index < chunks.length; index += 1) {
+        const chunk = chunks[index];
+        const chunkLabel = chunks.length > 1 ? ` ${index + 1}/${chunks.length}` : "";
+        let tx;
+        let usedVerification = false;
+
+        setStatus(`Waiting for wallet confirmation for batch${chunkLabel}...`);
+        try {
+          if (canUseVerification) {
+            tx = await contract.answerBatchVerified(chunk.profileIds, chunk.knows, 100, {
+              gasLimit: verifiedBatchGasLimit
+            });
+            usedVerification = true;
+          } else {
+            tx = await contract.answerBatch(chunk.profileIds, chunk.knows, { gasLimit: plainBatchGasLimit });
+          }
+        } catch (verifiedErr) {
+          console.warn("answerBatchVerified failed, falling back to answerBatch:", verifiedErr);
+          tx = await contract.answerBatch(chunk.profileIds, chunk.knows, { gasLimit: plainBatchGasLimit });
         }
-      } catch (verifiedErr) {
-        console.warn("answerBatchVerified failed, falling back to answerBatch:", verifiedErr);
-        tx = await contract.answerBatch(profileIds, knows);
-      }
-      setStatusLink(
-        usedVerification ? "Transaction submitted with Ritual verification." : "Transaction submitted on-chain.",
-        `${explorerBaseUrl}/tx/${tx.hash}`,
-        "View on explorer"
-      );
-      await tx.wait();
 
-      profileIds.forEach((profileId, index) => {
-        const normalizedProfileId = profileId.toString();
-        state.onchainAnsweredProfileIds.add(normalizedProfileId);
-        state.pendingAnswers.set(normalizedProfileId, Boolean(knows[index]));
-        state.completedProfileIds.add(normalizedProfileId);
-      });
-      savePendingAnswers();
+        setStatusLink(
+          usedVerification ? `Batch${chunkLabel} submitted with Ritual verification.` : `Batch${chunkLabel} submitted on-chain.`,
+          `${explorerBaseUrl}/tx/${tx.hash}`,
+          "View on explorer"
+        );
+        await tx.wait();
+        confirmedTxs.push(tx.hash);
+        usedAnyVerification = usedAnyVerification || usedVerification;
+
+        chunk.profileIds.forEach((profileId, answerIndex) => {
+          const normalizedProfileId = profileId.toString();
+          state.onchainAnsweredProfileIds.add(normalizedProfileId);
+          state.pendingAnswers.set(normalizedProfileId, Boolean(chunk.knows[answerIndex]));
+          state.completedProfileIds.add(normalizedProfileId);
+        });
+        savePendingAnswers();
+        updateProgress();
+      }
+
       saveBatchSubmitted(true);
       state.batchSubmitting = false;
       updateProgress();
       await refreshCurrentStats();
       await refreshLeaderboard();
       setStatusLink(
-        usedVerification ? "All answers confirmed on-chain with Ritual verification." : "All answers confirmed on-chain.",
-        `${explorerBaseUrl}/tx/${tx.hash}`,
-        "View on explorer"
+        usedAnyVerification ? "All answers confirmed on-chain with Ritual verification." : "All answers confirmed on-chain.",
+        `${explorerBaseUrl}/tx/${confirmedTxs[confirmedTxs.length - 1]}`,
+        "View latest transaction"
       );
     } catch (error) {
       state.batchSubmitting = false;
