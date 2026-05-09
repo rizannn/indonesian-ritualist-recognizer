@@ -11,7 +11,7 @@
 
   const twitterProxyBaseUrl = "https://ritual-twitter-proxy.artelamon.workers.dev/api/twitter";
   const explorerBaseUrl = "https://explorer.ritualfoundation.org";
-  const contractAddress = "0xeF71946C7B7B1717d99EFd36D1a3990dc36ba42A";
+  const contractAddress = "0x29682b24E056dCE515747047c9ED34a73Be665a8";
   const ritualChain = {
     blockExplorerUrls: [explorerBaseUrl],
     chainId: "0x7bb",
