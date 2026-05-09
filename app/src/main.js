@@ -1675,10 +1675,12 @@
       setStatus("Waiting for wallet confirmation (HTTP precompile verification)...");
 
       let tx;
+      let usedVerification = false;
       try {
         const executor = await contract.httpExecutor();
         if (executor && executor !== "0x0000000000000000000000000000000000000000") {
           tx = await contract.answerBatchVerified(profileIds, knows, 100, { gasLimit: 5000000 });
+          usedVerification = true;
         } else {
           tx = await contract.answerBatch(profileIds, knows);
         }
@@ -1686,7 +1688,11 @@
         console.warn("answerBatchVerified failed, falling back to answerBatch:", verifiedErr);
         tx = await contract.answerBatch(profileIds, knows);
       }
-      setStatusLink("Transaction submitted (with Ritual verification).", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+      setStatusLink(
+        usedVerification ? "Transaction submitted with Ritual verification." : "Transaction submitted on-chain.",
+        `${explorerBaseUrl}/tx/${tx.hash}`,
+        "View on explorer"
+      );
       await tx.wait();
 
       profileIds.forEach((profileId, index) => {
@@ -1701,7 +1707,11 @@
       updateProgress();
       await refreshCurrentStats();
       await refreshLeaderboard();
-      setStatusLink("All answers confirmed on-chain.", `${explorerBaseUrl}/tx/${tx.hash}`, "View on explorer");
+      setStatusLink(
+        usedVerification ? "All answers confirmed on-chain with Ritual verification." : "All answers confirmed on-chain.",
+        `${explorerBaseUrl}/tx/${tx.hash}`,
+        "View on explorer"
+      );
     } catch (error) {
       state.batchSubmitting = false;
       renderCompletion();
