@@ -12,8 +12,8 @@
   const twitterProxyBaseUrl = "https://ritual-twitter-proxy.artelamon.workers.dev/api/twitter";
   const explorerBaseUrl = "https://explorer.ritualfoundation.org";
   const contractAddress = "0x29682b24E056dCE515747047c9ED34a73Be665a8";
-  const batchSubmitChunkSize = 20;
-  const plainBatchGasLimit = 2000000;
+  const batchSubmitChunkSize = Number.MAX_SAFE_INTEGER;
+  const plainBatchGasLimit = 6000000;
   const ritualChain = {
     blockExplorerUrls: [explorerBaseUrl],
     chainId: "0x7bb",
